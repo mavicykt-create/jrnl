@@ -37,9 +37,9 @@ catch(e){ SECRET = crypto.randomBytes(32).toString('hex'); fs.writeFileSync(SECR
 
 /* ---------- пользователи ---------- */
 const USERS = [
-  { id:'katya',  name:'Катя',  color:'#A8385F' },
-  { id:'zhenya', name:'Женя',  color:'#2E5EAA' },
-  { id:'arian',  name:'Ариан', color:'#3C7A52' }
+  { id:'katya',  name:'Катя',  color:'#2c455d' },
+  { id:'zhenya', name:'Женя',  color:'#5980a6' },
+  { id:'arian',  name:'Ариан', color:'#416180' }
 ];
 const userById = id => USERS.find(u => u.id === id);
 
@@ -48,15 +48,24 @@ const uid = () => crypto.randomBytes(5).toString('hex');
 
 function seed(){
   const mk = rows => rows.map(r => ({
-    id:uid(), task:r[0], who:r[1]||'', note:r[2]||'', due:'', files:[],
+    id:uid(), task:r[0], who:r[1]||'', note:r[2]||'', due:r[3]||'', files:[],
     done:false, by:null, at:new Date().toISOString()
   }));
   return {
     rev: 1,
+    /* справочник подрядчиков: один подрядчик — много задач */
+    contacts: [
+      { id:uid(), name:'Мишкин',        trade:'отопление, сантехника', phone:'+7 924 401-12-06' },
+      { id:uid(), name:'Ворота Импорт', trade:'ворота, автоматика',    phone:'+7 914 330-88-40' },
+      { id:uid(), name:'Дорхан',        trade:'ворота',                phone:'+7 924 862-88-19' },
+      { id:uid(), name:'Вентпромстрой', trade:'вентиляция',            phone:'+7 924 118-55-02' },
+      { id:uid(), name:'Алексей',       trade:'кровля, документы',     phone:'+7 914 772-31-19' },
+      { id:uid(), name:'Стеклорум',     trade:'перила, стекло',        phone:'+7 924 509-77-13' }
+    ],
     objects: [
       { id:uid(), name:'Гараж', tasks: mk([
-        ['Отопление','Мишкин','Когда начнут? 18.08.26 — радиаторы первый этаж, счёт'],
-        ['Ворота Импорт','Ворота Импорт','18.08.2026 пришли. С Александром переговорить'],
+        ['Отопление','Мишкин','Радиаторы первый этаж, счёт. Когда начнут?'],
+        ['Ворота Импорт','Ворота Импорт','18.08 пришли. Переговорить с Александром'],
         ['Ворота Дорхан','Дорхан','+7 924 862-88-19. С Александром переговорить'],
         ['Асфальт въезд','','Ещё не договорились'],
         ['Водоснабжение','',''],
@@ -94,6 +103,17 @@ try{
 }
 db.log = db.log || [];
 db.rev = db.rev || 1;
+
+/* миграция старых баз: справочник собираем из уже вписанных исполнителей */
+if(!Array.isArray(db.contacts)){
+  const seen = [];
+  db.objects.forEach(o => o.tasks.forEach(t => {
+    const n = (t.who || '').trim();
+    if(n && seen.indexOf(n) < 0) seen.push(n);
+  }));
+  db.contacts = seen.map(name => ({ id:uid(), name, trade:'', phone:'' }));
+  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
+}
 
 let saveTimer = null;
 function persist(){
@@ -178,7 +198,7 @@ const MIME = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; chars
   '.css':'text/css; charset=utf-8', '.svg':'image/svg+xml', '.png':'image/png', '.ico':'image/x-icon' };
 
 function state(user){
-  return { me:user, users:USERS, rev:db.rev, objects:db.objects, log:db.log.slice(0, 200) };
+  return { me:user, users:USERS, rev:db.rev, contacts:db.contacts, objects:db.objects, log:db.log.slice(0, 200) };
 }
 
 /* ---------- маршруты ---------- */
@@ -282,6 +302,44 @@ const server = http.createServer(async (req, res) => {
       fs.unlink(path.join(UPLOAD_DIR, f.stored), () => {});
       stamp(hit.task, user);
       note(user, 'убрал файл «' + f.name + '» из ' + quote(hit.task.task));
+      persist(); return send(res, 200, state(user));
+    }
+
+    /* --- справочник подрядчиков --- */
+    if(p === '/api/contact' && req.method === 'POST'){
+      const b = await body(req, 4096);
+      const name = clean(b.name, 120);
+      if(!name) return send(res, 400, { error:'Пустое имя' });
+      if(db.contacts.some(c => c.name.toLowerCase() === name.toLowerCase()))
+        return send(res, 400, { error:'Такой подрядчик уже есть' });
+      db.contacts.push({ id:uid(), name, trade:clean(b.trade, 120), phone:clean(b.phone, 40) });
+      note(user, 'добавил подрядчика ' + quote(name));
+      persist(); return send(res, 200, state(user));
+    }
+    if(/^\/api\/contact\/[^/]+$/.test(p) && req.method === 'PATCH'){
+      const c = db.contacts.find(x => x.id === p.split('/')[3]);
+      if(!c) return send(res, 404, { error:'Подрядчик не найден' });
+      const b = await body(req, 4096);
+      const changes = [];
+      if('name' in b){
+        const name = clean(b.name, 120);
+        if(name && name !== c.name){
+          /* имя — ключ, которым подписаны задачи: переименовываем вместе с ними */
+          db.objects.forEach(o => o.tasks.forEach(t => { if(t.who === c.name) t.who = name; }));
+          changes.push('имя → ' + name); c.name = name;
+        }
+      }
+      if('phone' in b && clean(b.phone, 40) !== c.phone){ c.phone = clean(b.phone, 40); changes.push('телефон'); }
+      if('trade' in b && clean(b.trade, 120) !== c.trade){ c.trade = clean(b.trade, 120); changes.push('специализация'); }
+      if(changes.length){ note(user, 'подрядчик ' + quote(c.name) + ': ' + changes.join(', ')); persist(); }
+      return send(res, 200, state(user));
+    }
+    if(/^\/api\/contact\/[^/]+$/.test(p) && req.method === 'DELETE'){
+      const c = db.contacts.find(x => x.id === p.split('/')[3]);
+      if(!c) return send(res, 404, { error:'Подрядчик не найден' });
+      /* задачи не трогаем: имя остаётся вписанным вручную */
+      db.contacts = db.contacts.filter(x => x.id !== c.id);
+      note(user, 'убрал подрядчика ' + quote(c.name) + ' из справочника');
       persist(); return send(res, 200, state(user));
     }
 

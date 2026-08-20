@@ -107,8 +107,8 @@ main{padding:26px 30px 70px;min-width:0}
 .filters .sep{flex:1}
 
 .scroll{overflow-x:auto;padding-bottom:4px}
-.grid{min-width:700px}
-.trow{display:grid;grid-template-columns:28px 26px minmax(150px,1fr) 118px 150px 118px 52px;gap:8px}
+.grid{min-width:768px;max-width:1120px}
+.trow{display:grid;grid-template-columns:28px 26px minmax(150px,1fr) 128px 150px 108px 52px 30px;gap:8px}
 .thead{align-items:end;padding:0 4px 7px;border-bottom:2px solid var(--text)}
 .thead>div{font-family:var(--head);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--n600)}
 .gband{display:flex;align-items:center;gap:12px;margin-top:18px;padding:7px 12px 6px;border-bottom:1px solid var(--divider)}
@@ -132,7 +132,9 @@ li.item .trow{align-items:center;padding:9px 4px}
 .cell.task{font-weight:500}
 .item.done .cell.task{color:var(--n500);text-decoration:line-through}
 .cell.who{font-size:13.5px;color:var(--n800)}
-.note{font-size:12.5px;color:var(--n600);padding:0 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tstack{display:flex;align-items:baseline;gap:10px;min-width:0}
+.tstack .cell.task{flex:1 1 auto}
+.note{font-size:12.5px;color:var(--n500);padding:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:0 1 45%;min-width:0}
 .due{position:relative;display:flex;align-items:center;gap:7px;border:1px solid var(--divider);padding:3px 8px;color:var(--n700)}
 .due input{background:transparent;border:0;padding:0;width:100%;min-width:0;font-family:var(--head);font-weight:600;font-size:14.5px;letter-spacing:.04em;color:inherit}
 .due input:focus-visible{outline:2px solid var(--a);outline-offset:2px}
@@ -172,6 +174,52 @@ li.item.open .drawer{display:grid}
 .foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:26px;padding-top:14px;border-top:1px solid var(--divider);font-size:12.5px;color:var(--n600)}
 .foot button{background:none;border:0;color:var(--n600);text-decoration:underline;cursor:pointer;padding:0}
 .foot button:hover{color:var(--text)}
+
+/* выбор подрядчика */
+.whocell{position:relative;min-width:0}
+.whobtn{display:block;width:100%;text-align:left;background:transparent;border:1px solid transparent;padding:3px 6px;cursor:pointer;font-size:13.5px;color:var(--n800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.whobtn:hover{border-color:var(--divider);background:var(--bg)}
+.whobtn.none{border:1px dashed rgba(29,31,32,.28);color:var(--n500);font-size:13px}
+.whobtn.none:hover{border-color:var(--a);color:var(--a700)}
+.pop{position:absolute;z-index:14;top:calc(100% + 4px);left:0;width:288px;background:var(--bg);border:1px solid var(--a900);box-shadow:0 12px 32px rgba(43,43,45,.22)}
+.pop-top{display:flex;align-items:center;gap:8px;padding:8px 11px;background:var(--a900);color:var(--bg)}
+.pop-top .lb{font-family:var(--head);font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;flex:1}
+.pop-top button{background:none;border:0;color:var(--a400);font-size:15px;line-height:1;cursor:pointer;padding:0}
+.pop-top button:hover{color:var(--bg)}
+.pop-list{max-height:264px;overflow:auto}
+.pick{display:block;width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--hair);padding:8px 11px;cursor:pointer}
+.pick:hover{background:var(--a100)}
+.pick.on{background:var(--a200)}
+.pick .r1{display:flex;align-items:baseline;gap:8px}
+.pick .nm{font-size:14px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pick.on .nm{font-weight:500}
+.pick .ph{font-family:var(--head);font-weight:600;font-size:13.5px;letter-spacing:.04em;color:var(--n700)}
+.pick.on .ph{color:var(--a800)}
+.pick .tr{font-size:12px;color:var(--n500)}
+.pop-foot{display:flex;gap:2px;padding:8px 11px}
+.pop-foot .btn{flex:1;font-size:12px;padding:7px 8px}
+.pop-list .nofiles{display:block;padding:10px 11px}
+
+/* справочник подрядчиков */
+.crow{grid-template-columns:minmax(0,1fr) 168px minmax(0,1.2fr) 84px 84px 30px;align-items:center;padding:11px 4px}
+.chead{align-items:end;padding:0 4px 7px;border-bottom:2px solid var(--text)}
+.chead>div{font-family:var(--head);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--n600)}
+.citem{border-bottom:1px solid var(--hair)}
+.citem:hover{background:var(--a100)}
+.cnm{font-size:15px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cph{font-family:var(--head);font-weight:600;font-size:16px;letter-spacing:.04em;white-space:nowrap}
+.ctr{font-size:13.5px;color:var(--n800);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cobj{font-size:12.5px;color:var(--n500);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cnum{font-family:var(--head);font-weight:600;font-size:22px;text-align:right}
+.cnum.zero{font-weight:400;color:var(--n400)}
+.cnum.alarm{background:var(--a900);color:var(--bg);padding:2px 8px}
+.csub{padding:0 4px 12px}
+.csubrow{display:flex;align-items:baseline;gap:10px;padding:3px 0 3px 14px;border-left:1px solid var(--divider)}
+.csubrow .tt{font-size:13.5px}
+.csubrow .tw{font-size:12.5px;color:var(--n500)}
+.csubrow .sp{flex:1}
+.csubrow .cd{font-family:var(--head);font-weight:600;font-size:14px;letter-spacing:.04em}
+.csubrow .dn{font-size:12px;color:var(--n700)}
 
 /* доска сроков */
 .board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
@@ -239,6 +287,10 @@ li.item.open .drawer{display:grid}
   .sum{grid-template-columns:1fr}
   .urow{grid-template-columns:100px minmax(0,1fr);row-gap:2px}
   .urow .uwho,.urow .udn{display:none}
+  .crow{grid-template-columns:minmax(0,1fr) 132px 68px 30px;row-gap:2px}
+  .chead{display:none}
+  .crow>div:nth-child(3){grid-column:1/4}
+  .pop{width:252px;left:auto;right:0}
   .drawer{grid-template-columns:1fr;padding-left:20px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -270,6 +322,7 @@ li.item.open .drawer{display:grid}
   <div style="flex:1"></div>
   <div class="me" id="me"></div>
   <button class="btn" id="open-sum">Сводка</button>
+  <button class="btn" id="open-con">Подрядчики</button>
   <button class="btn" id="open-hist">История</button>
   <button class="btn link" id="exit">Выйти</button>
 </div>
@@ -279,7 +332,13 @@ li.item.open .drawer{display:grid}
     <span class="k">Объекты</span>
     <div id="objects"></div>
     <button class="btn dash" id="add-obj" style="margin:14px 18px 0;width:calc(100% - 36px)">+ объект</button>
-    <div class="sidenote">Правки видят все, кто вошёл. Страница подтягивает чужое раз в 15 секунд.</div>
+    <div class="sidenote">
+      <button class="btn" id="refresh" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3.5-7.1"/><path d="M21 3v6h-6"/></svg>
+        Обновить
+      </button>
+      <div id="refnote" style="margin-top:9px">Правки видят все трое. Сама страница подтягивает чужое раз в 15 секунд.</div>
+    </div>
   </aside>
 
   <main>
@@ -324,7 +383,7 @@ li.item.open .drawer{display:grid}
         <div class="scroll">
           <div class="grid">
             <div class="trow thead">
-              <div></div><div style="text-align:right">№</div><div>Задача</div><div>Исполнитель</div><div>Срок</div><div>Кто трогал</div><div style="text-align:center">Файлы</div>
+              <div></div><div style="text-align:right">№</div><div>Задача</div><div>Исполнитель</div><div>Срок</div><div>Изменения</div><div style="text-align:center">Файлы</div><div></div>
             </div>
             <div id="groups"></div>
           </div>
@@ -337,6 +396,14 @@ li.item.open .drawer{display:grid}
         <span>Сроки — главная колонка: просроченное собрано сверху, «без срока» видно отдельно.</span>
         <span><button id="backup">Скачать копию</button> · <button id="drop-obj">Удалить этот объект</button></span>
       </div>
+    </div>
+
+    <div id="view-con" style="display:none">
+      <div class="trow crow chead">
+        <div>Кто</div><div>Телефон</div><div>Что делает · объекты</div><div style="text-align:right">В работе</div><div style="text-align:right">Просроч.</div><div></div>
+      </div>
+      <div id="contacts"></div>
+      <button class="btn dash" id="add-con" style="margin-top:16px">+ подрядчик</button>
     </div>
 
     <div id="view-sum" style="display:none">
@@ -364,7 +431,7 @@ li.item.open .drawer{display:grid}
 <script>
 const $ = s => document.querySelector(s);
 const el = (tag, cls, text) => { const d = document.createElement(tag); if(cls) d.className = cls; if(text != null) d.textContent = text; return d; };
-let S = null, filter = 'all', view = 'list', screen = 'object', pickedUser = null;
+let S = null, filter = 'all', view = 'list', screen = 'object', pickedUser = null, pickerId = null;
 const opened = new Set();
 
 /* ─── цвета людей: шаги стальной шкалы, а не произвольные ─── */
@@ -402,10 +469,9 @@ const fmt = due => { if(!due) return ''; const p = due.split('-'); return p[2] +
 function dueNote(d, done){
   if(done) return 'закрыто';
   if(d === null) return 'срок не задан';
-  if(d < 0) return 'просрочено ' + (-d) + ' дн.';
-  if(d === 0) return 'срок сегодня';
-  if(d === 1) return 'остался 1 день';
-  return 'через ' + d + ' дн.';
+  if(d < 0) return '−' + (-d) + ' дн.';
+  if(d === 0) return 'сегодня';
+  return '+' + d + ' дн.';
 }
 function when(iso){
   if(!iso) return '';
@@ -464,7 +530,17 @@ async function login(){
 }
 $('#enter').onclick = login;
 $('#pin').addEventListener('keydown', e => { if(e.key === 'Enter') login(); });
-$('#exit').onclick = async () => { await fetch('/api/logout', { method:'POST' }); pickedUser = null; buildGate(); showGate(); };
+$('#exit').onclick = async () => { await fetch('/api/logout', { method:'POST' }); pickedUser = null; $('#refresh').onclick = async () => {
+  try{
+    S = await api('/api/state');
+    render();
+    const n = new Date();
+    $('#refnote').textContent = 'Обновлено в ' + String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0') + ':' + String(n.getSeconds()).padStart(2,'0');
+    toast('Обновил');
+  }catch(e){ toast(e.message); }
+};
+
+buildGate(); showGate(); };
 
 /* ─── отрисовка ─── */
 function render(){
@@ -495,10 +571,13 @@ function render(){
 
   $('#view-object').style.display = screen === 'object' ? '' : 'none';
   $('#view-sum').style.display = screen === 'sum' ? '' : 'none';
+  $('#view-con').style.display = screen === 'con' ? '' : 'none';
   document.querySelector('.views').style.visibility = screen === 'object' ? '' : 'hidden';
   $('#open-sum').classList.toggle('on', screen === 'sum');
+  $('#open-con').classList.toggle('on', screen === 'con');
 
   if(screen === 'sum'){ $('#mkicker').textContent = 'Сводка по всем объектам'; $('#objname').textContent = 'Что горит сейчас'; renderSum(); renderHist(); return; }
+  if(screen === 'con'){ $('#mkicker').textContent = 'Один подрядчик — много задач'; $('#objname').textContent = 'Подрядчики'; renderContacts(); renderHist(); return; }
 
   const o = cur(), st = stats(o);
   $('#mkicker').textContent = 'Объект';
@@ -547,6 +626,46 @@ function renderList(o){
   }
 }
 
+function whoCell(t){
+  const wrap = el('div', 'whocell');
+  const btn = el('button', 'whobtn' + (t.who ? '' : ' none'), t.who || 'выбрать');
+  btn.title = t.who ? 'Сменить подрядчика' : 'Выбрать подрядчика';
+  btn.onclick = e => { e.stopPropagation(); pickerId = pickerId === t.id ? null : t.id; render(); };
+  wrap.appendChild(btn);
+  if(pickerId !== t.id) return wrap;
+
+  const pop = el('div', 'pop');
+  pop.onclick = e => e.stopPropagation();
+  const top = el('div', 'pop-top');
+  const x = el('button', null, '✕');
+  x.onclick = () => { pickerId = null; render(); };
+  top.append(el('span', 'lb', 'Подрядчик'), x);
+  pop.appendChild(top);
+
+  const list = el('div', 'pop-list');
+  (S.contacts || []).forEach(c => {
+    const b = el('button', 'pick' + (c.name === t.who ? ' on' : ''));
+    const r1 = el('div', 'r1');
+    r1.append(el('span', 'nm', c.name), el('span', 'ph', c.phone || ''));
+    b.append(r1, el('div', 'tr', c.trade || ''));
+    b.onclick = () => { pickerId = null; act('/api/task/' + t.id, 'PATCH', { who:c.name }); };
+    list.appendChild(b);
+  });
+  if(!(S.contacts || []).length) list.appendChild(el('div', 'nofiles', 'Справочник пуст — добавьте на экране «Подрядчики»'));
+  pop.appendChild(list);
+
+  const foot = el('div', 'pop-foot');
+  const clear = el('button', 'btn', 'Снять');
+  clear.onclick = () => { pickerId = null; act('/api/task/' + t.id, 'PATCH', { who:'' }); };
+  const all = el('button', 'btn', 'Все контакты');
+  all.onclick = () => { pickerId = null; screen = 'con'; render(); };
+  foot.append(clear, all);
+  pop.appendChild(foot);
+
+  wrap.appendChild(pop);
+  return wrap;
+}
+
 function dueCell(t){
   const d = daysLeft(t.due);
   const key = t.done ? 'done' : d === null ? 'none' : d < 0 ? 'late' : d === 0 ? 'today' : d <= 7 ? 'soon' : '';
@@ -566,20 +685,19 @@ function item(t, n){
   box.setAttribute('aria-label', t.done ? 'Вернуть в работу' : 'Отметить сделанным');
   box.onclick = () => act('/api/task/' + t.id, 'PATCH', { done: !t.done });
 
-  const stack = el('div'); stack.style.minWidth = '0';
+  const stack = el('div', 'tstack');
   const task = el('input', 'cell task'); task.type = 'text'; task.value = t.task; task.placeholder = 'Что сделать';
   task.onchange = () => { if(task.value.trim() !== t.task) act('/api/task/' + t.id, 'PATCH', { task:task.value }); };
   stack.appendChild(task);
   if(t.note) stack.appendChild(el('div', 'note', t.note));
 
-  const who = el('input', 'cell who'); who.type = 'text'; who.value = t.who; who.placeholder = 'не назначен';
-  who.onchange = () => { if(who.value.trim() !== t.who) act('/api/task/' + t.id, 'PATCH', { who:who.value }); };
 
   const sig = el('div', 'sig');
   if(t.by){
     const u = userOf(t.by);
     const dot = el('span', 'dot'); dot.style.background = tone(t.by);
-    sig.append(dot, el('span', 'tx', (u ? u.name : '?') + ', ' + when(t.at)));
+    sig.title = 'Последняя правка: ' + when(t.at);
+    sig.append(dot, el('span', 'tx', u ? u.name : '?'));
   } else sig.append(el('span', 'tx', '—'));
 
   const clip = el('button', 'clip' + (t.files.length ? ' has' : ''), t.files.length ? String(t.files.length) : '+');
@@ -592,7 +710,7 @@ function item(t, n){
     if(confirm('Удалить «' + (t.task || 'без названия') + '»?')){ opened.delete(t.id); act('/api/task/' + t.id, 'DELETE', null, 'Удалено'); }
   };
 
-  row.append(box, el('div', 'num', String(n)), stack, who, dueCell(t), sig, clip);
+  row.append(box, el('div', 'num', String(n)), stack, whoCell(t), dueCell(t), sig, clip);
   row.appendChild(kill);
   li.append(row, drawer(t));
   return li;
@@ -723,6 +841,58 @@ function renderSum(){
   });
 }
 
+function renderContacts(){
+  const host = $('#contacts'); host.innerHTML = '';
+  (S.contacts || []).forEach(c => {
+    const hits = [];
+    S.objects.forEach(o => o.tasks.forEach(t => { if(t.who === c.name) hits.push({ o, t }); }));
+    const open = hits.filter(x => !x.t.done);
+    const late = open.filter(x => bucket(x.t) === 'late');
+    const objs = [];
+    hits.forEach(x => { if(objs.indexOf(x.o.name) < 0) objs.push(x.o.name); });
+
+    const wrap = el('div', 'citem');
+    const row = el('div', 'trow crow');
+    row.appendChild(el('div', 'cnm', c.name));
+    if(c.phone){
+      const a = el('a', 'cph', c.phone); a.href = 'tel:' + c.phone.replace(/[^+\d]/g, '');
+      row.appendChild(a);
+    } else row.appendChild(el('div', 'nofiles', 'телефона нет'));
+    const mid = el('div'); mid.style.minWidth = '0';
+    mid.append(el('div', 'ctr', c.trade || '—'), el('div', 'cobj', objs.join(' · ') || 'задач пока нет'));
+    row.appendChild(mid);
+    row.appendChild(el('div', 'cnum', String(open.length)));
+    row.appendChild(el('div', 'cnum' + (late.length ? ' alarm' : ' zero'), late.length ? String(late.length) : '—'));
+
+    const edit = el('button', 'kill', '✎');
+    edit.title = 'Правка контакта';
+    edit.onclick = () => {
+      const name = prompt('Имя', c.name);
+      if(name === null) return;
+      const phone = prompt('Телефон', c.phone || '');
+      if(phone === null) return;
+      const trade = prompt('Что делает', c.trade || '');
+      if(trade === null) return;
+      act('/api/contact/' + c.id, 'PATCH', { name:name.trim(), phone:phone.trim(), trade:trade.trim() }, 'Контакт обновлён');
+    };
+    row.appendChild(edit);
+    wrap.appendChild(row);
+
+    if(late.length){
+      const sub = el('div', 'csub');
+      late.slice(0, 4).forEach(x => {
+        const r = el('div', 'csubrow');
+        r.append(el('span', 'tt', x.t.task), el('span', 'tw', x.o.name),
+          el('span', 'sp'), el('span', 'cd', fmt(x.t.due)), el('span', 'dn', dueNote(daysLeft(x.t.due), false)));
+        sub.appendChild(r);
+      });
+      wrap.appendChild(sub);
+    }
+    host.appendChild(wrap);
+  });
+  if(!(S.contacts || []).length) host.appendChild(el('div', 'empty', 'Справочник пуст — добавьте первого подрядчика.'));
+}
+
 function renderHist(){
   const box = $('#hist-list'); box.innerHTML = '';
   if(!S.log.length){
@@ -746,7 +916,8 @@ const histOpen = on => { $('#hist').classList.toggle('on', on); $('#veil').class
 $('#open-hist').onclick = () => histOpen(true);
 $('#close-hist').onclick = () => histOpen(false);
 $('#veil').onclick = () => histOpen(false);
-document.addEventListener('keydown', e => { if(e.key === 'Escape') histOpen(false); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape'){ histOpen(false); if(pickerId){ pickerId = null; render(); } } });
+document.addEventListener('click', () => { if(pickerId){ pickerId = null; render(); } });
 
 /* ─── действия ─── */
 $('#add').onclick = () => {
@@ -770,6 +941,14 @@ document.querySelectorAll('.views .btn[data-v]').forEach(b => b.onclick = () => 
   render();
 });
 $('#open-sum').onclick = () => { screen = screen === 'sum' ? 'object' : 'sum'; render(); };
+$('#open-con').onclick = () => { screen = screen === 'con' ? 'object' : 'con'; render(); };
+$('#add-con').onclick = () => {
+  const name = prompt('Имя или название подрядчика');
+  if(!name || !name.trim()) return;
+  const phone = prompt('Телефон', '') || '';
+  const trade = prompt('Что делает', '') || '';
+  act('/api/contact', 'POST', { name:name.trim(), phone:phone.trim(), trade:trade.trim() }, 'Подрядчик добавлен');
+};
 $('#add-obj').onclick = () => {
   const name = prompt('Название объекта');
   if(name && name.trim()) act('/api/object', 'POST', { name:name.trim() }, 'Объект добавлен');
@@ -807,6 +986,16 @@ setInterval(async () => {
     }
   }catch(e){}
 }, 15000);
+
+$('#refresh').onclick = async () => {
+  try{
+    S = await api('/api/state');
+    render();
+    const n = new Date();
+    $('#refnote').textContent = 'Обновлено в ' + String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0') + ':' + String(n.getSeconds()).padStart(2,'0');
+    toast('Обновил');
+  }catch(e){ toast(e.message); }
+};
 
 buildGate();
 boot().catch(() => showGate());
