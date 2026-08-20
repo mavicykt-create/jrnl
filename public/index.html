@@ -3,259 +3,377 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#191C1A">
+<meta name="theme-color" content="#1d2d3d">
 <title>Журнал работ</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23191C1A'/><path d='M5 17l6 6 15-15' stroke='%23F0C220' stroke-width='4.5' fill='none'/></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%231d2d3d'/><path d='M5 17l6 6 15-15' stroke='%23f2f2f3' stroke-width='4' fill='none'/></svg>">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;700&family=Barlow+Condensed:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 :root{
-  --bg:#E4E4DE; --panel:#FBFBF8; --ink:#161917; --muted:#6F746D; --hair:#D6D6CD;
-  --char:#191C1A; --signal:#F0C220; --alarm:#B23A26; --ok:#3C7A52;
-  --disp:Oswald,Impact,sans-serif;
-  --body:"IBM Plex Sans",-apple-system,Segoe UI,Roboto,sans-serif;
-  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --bg:#f2f2f3; --surface:#f5f5f8; --text:#1d1f20; --divider:rgba(29,31,32,.16); --hair:rgba(29,31,32,.10);
+  --n200:#e7e7ea; --n300:#d4d4d7; --n400:#b7b7ba; --n500:#98989b; --n600:#7a7a7d; --n700:#5d5d60; --n800:#424244;
+  --a100:#eef6ff; --a200:#d6ebff; --a400:#94bce3; --a:#5980a6; --a600:#597ea3; --a700:#416180; --a800:#2c455d; --a900:#1d2d3d;
+  --head:"Barlow Condensed",system-ui,sans-serif; --body:"Barlow",system-ui,sans-serif;
 }
-*{box-sizing:border-box}
+*,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
-button,input,textarea{font-family:inherit}
-::selection{background:var(--signal);color:var(--char)}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.55}
+button,input,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+::selection{background:var(--a200)}
+a{color:var(--a700);text-decoration:none;border-bottom:1px solid var(--a400)}
+a:hover{color:var(--a900);border-bottom-color:var(--a)}
+ul{list-style:none;margin:0;padding:0}
+.k{font-family:var(--head);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--n600)}
+.h{font-family:var(--head);font-weight:600;text-transform:uppercase;letter-spacing:-.01em;line-height:1.02}
 
-/* ---------------- ВХОД ---------------- */
-#gate{position:fixed;inset:0;background:var(--char);color:#F2F2EE;display:none;place-items:center;padding:24px;z-index:50;overflow:auto}
+/* корневые кнопки */
+.btn{font-family:var(--head);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;
+  background:transparent;border:1px solid var(--divider);color:var(--n800);padding:7px 14px;cursor:pointer;border-radius:0}
+.btn:hover{border-color:var(--a);color:var(--a900);background:var(--a100)}
+.btn.on{background:var(--a900);border-color:var(--a900);color:var(--bg)}
+.btn.on:hover{background:var(--a800);border-color:var(--a800);color:var(--bg)}
+.btn.pri{background:var(--a);border-color:var(--a);color:var(--bg)}
+.btn.pri:hover{background:var(--a600);border-color:var(--a700);color:var(--bg)}
+.btn.dash{border-style:dashed;color:var(--n700)}
+.btn.link{border-color:transparent;color:var(--n600);padding:6px 8px}
+.btn.link:hover{background:transparent;color:var(--text)}
+.in{background:var(--bg);border:1px solid var(--divider);padding:9px 10px;width:100%;min-width:0;border-radius:0}
+.in:focus-visible{outline:2px solid var(--a);outline-offset:-2px;border-color:var(--a)}
+
+/* вход */
+#gate{position:fixed;inset:0;background:var(--bg);display:none;place-items:center;padding:28px;z-index:60;overflow:auto}
 #gate.on{display:grid}
-.gate-card{width:100%;max-width:400px}
-.gate-tape{height:12px;background:repeating-linear-gradient(-45deg,var(--signal) 0 10px,var(--char) 10px 20px);border:1px solid var(--signal);margin-bottom:26px}
-.gate-card h1{font-family:var(--disp);font-weight:600;font-size:34px;letter-spacing:.07em;text-transform:uppercase;margin:0 0 6px;line-height:1}
-.gate-card p{color:#93968F;font-size:13px;margin:0 0 26px;letter-spacing:.02em}
-.gate-label{font-family:var(--disp);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#93968F;margin-bottom:9px}
-.people{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:22px}
-.person{background:transparent;border:1px solid #3A3E3B;color:#CFD1CC;padding:14px 6px 12px;cursor:pointer;display:grid;justify-items:center;gap:8px;transition:border-color .15s,background .15s}
-.person:hover{border-color:#6C716B}
-.person .ava{width:34px;height:34px;display:grid;place-items:center;font-family:var(--disp);font-size:17px;color:#fff;border-radius:50%}
-.person span{font-size:13px;letter-spacing:.03em}
-.person.on{border-color:var(--signal);background:#22261F;color:#fff}
+.gcard{position:relative;width:100%;max-width:420px;border:1px solid var(--divider);padding:36px 32px 32px}
+.corner{position:absolute;width:11px;height:11px;color:rgba(29,31,32,.55)}
+.corner::before{content:"";position:absolute;left:5px;top:0;width:1px;height:100%;background:currentColor}
+.corner::after{content:"";position:absolute;top:5px;left:0;width:100%;height:1px;background:currentColor}
+.corner.tl{top:-6px;left:-6px}.corner.tr{top:-6px;right:-6px}.corner.bl{bottom:-6px;left:-6px}.corner.br{bottom:-6px;right:-6px}
+.gcard .t{font-family:var(--head);font-weight:600;font-size:44px;line-height:1;text-transform:uppercase;margin:10px 0 6px}
+.gcard .sub{color:var(--n700);font-size:14px;margin-bottom:28px}
+.people{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:9px 0 22px}
+.person{display:grid;justify-items:center;gap:9px;padding:15px 6px 12px;background:transparent;border:1px solid var(--divider);cursor:pointer}
+.person:hover{border-color:var(--a);background:var(--a100)}
+.person.on{border-color:var(--a);background:var(--a200)}
+.person span{font-size:14px;color:var(--n700)}
+.person.on span{color:var(--text)}
+.ava{display:grid;place-items:center;font-family:var(--head);font-weight:600;color:var(--bg);flex:none}
 .pin{display:flex;gap:8px}
-.pin input{flex:1;background:#101211;border:1px solid #3A3E3B;color:#fff;padding:13px;font-family:var(--mono);font-size:18px;letter-spacing:.4em}
-.pin input:focus-visible{outline:2px solid var(--signal);outline-offset:-2px}
-.pin button{background:var(--signal);border:1px solid var(--signal);color:var(--char);font-family:var(--disp);font-size:15px;letter-spacing:.08em;text-transform:uppercase;padding:0 22px;cursor:pointer}
-.pin button:hover{background:#fff;border-color:#fff}
-.gate-err{color:#F0928A;font-size:13px;min-height:20px;margin-top:12px}
+.pin .in{letter-spacing:.4em;font-size:18px;background:var(--surface);padding:12px}
+.gerr{min-height:22px;margin-top:12px;font-size:13px;color:var(--a700)}
 
-/* ---------------- ШАПКА ---------------- */
-.top{position:sticky;top:0;z-index:20;background:var(--char);color:#F2F2EE;padding:11px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.logo{font-family:var(--disp);font-weight:600;font-size:19px;letter-spacing:.11em;text-transform:uppercase;line-height:1}
-.logo i{color:var(--signal);font-style:normal}
-.top .spacer{flex:1}
-.me{display:flex;align-items:center;gap:8px;font-size:13px;color:#CFD1CC}
-.ava{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-family:var(--disp);font-size:13px;color:#fff;flex:none}
-.tbtn{background:transparent;border:1px solid #3A3E3B;color:#CFD1CC;font-family:var(--disp);font-size:12px;letter-spacing:.09em;text-transform:uppercase;padding:7px 12px;cursor:pointer}
-.tbtn:hover{border-color:var(--signal);color:var(--signal)}
-.tbtn:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+/* шапка */
+.appbar{display:flex;align-items:center;gap:14px;height:56px;padding:0 24px;border-bottom:1px solid var(--divider);position:sticky;top:0;background:var(--bg);z-index:20}
+.brand{font-family:var(--head);font-weight:600;font-size:19px;letter-spacing:.12em;text-transform:uppercase}
+.vline{width:1px;height:22px;background:var(--divider)}
+.today{font-family:var(--head);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--n700)}
+.me{display:flex;align-items:center;gap:9px;font-size:14px;color:var(--n800)}
+.me .ava{width:26px;height:26px;font-size:13px}
 
-.wrap{max-width:1060px;margin:0 auto;padding:20px 16px 70px}
+.layout{display:grid;grid-template-columns:236px minmax(0,1fr)}
+.side{border-right:1px solid var(--divider);padding:22px 0 40px;min-height:calc(100vh - 56px)}
+.side .k{padding:0 20px 12px;display:block}
+.obj{display:block;width:100%;text-align:left;background:transparent;border:0;border-left:3px solid transparent;padding:11px 18px;cursor:pointer}
+.obj:hover{background:var(--a100)}
+.obj.on{background:var(--n200);border-left-color:var(--a900)}
+.obj .row1{display:flex;align-items:baseline;gap:8px}
+.obj .nm{font-family:var(--head);font-weight:600;font-size:18px;letter-spacing:.03em;text-transform:uppercase;color:var(--n800);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.obj.on .nm{color:var(--text)}
+.obj .ct{font-family:var(--head);font-size:15px;color:var(--n600)}
+.obj.on .ct{color:var(--a900)}
+.obj .sub{font-size:12.5px;color:var(--n500);margin-top:1px}
+.obj.on .sub{color:var(--n700)}
+.sidenote{margin:28px 20px 0;padding-top:16px;border-top:1px solid var(--divider);font-size:12.5px;color:var(--n600)}
 
-.tape{height:14px;background:var(--char);border:1px solid var(--char);overflow:hidden}
-.tape i{display:block;height:100%;width:0;transition:width .4s ease;background:repeating-linear-gradient(-45deg,var(--signal) 0 9px,var(--char) 9px 18px)}
-.legend{display:flex;justify-content:space-between;gap:12px;align-items:baseline;font-size:12.5px;color:var(--muted);margin:7px 0 20px}
-.legend b{font-family:var(--disp);font-weight:500;font-size:14px;color:var(--ink);letter-spacing:.06em;white-space:nowrap}
-.late-flag{color:var(--alarm);font-weight:600}
+main{padding:26px 30px 70px;min-width:0}
+.mhead{display:flex;align-items:flex-end;gap:18px;margin-bottom:18px}
+.mhead .h{font-size:42px}
+.views{display:flex;gap:2px}
 
-.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:-1px}
-.tab{font-family:var(--disp);font-size:14px;letter-spacing:.07em;text-transform:uppercase;background:transparent;border:1px solid var(--hair);border-bottom-color:transparent;padding:9px 14px;cursor:pointer;color:var(--muted);display:flex;align-items:center;gap:8px}
-.tab b{font-family:var(--body);font-size:11px;font-weight:600;letter-spacing:0;background:var(--hair);color:#4A4E4B;padding:1px 7px;border-radius:9px}
-.tab:hover{color:var(--ink)}
-.tab.on{background:var(--panel);color:var(--ink);border-color:var(--char);border-bottom-color:var(--panel)}
-.tab.on b{background:var(--signal);color:var(--char)}
-.tab-add{border-style:dashed}
-.tab:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.plate{position:relative;display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--divider);margin-bottom:8px}
+.plate>div{padding:13px 16px;border-right:1px solid var(--divider)}
+.plate>div:last-child{border-right:0}
+.plate .num{font-family:var(--head);font-weight:600;font-size:34px;line-height:1.1}
+.plate .alarm{background:var(--a900);color:var(--bg)}
+.plate .alarm .k{color:var(--a400)}
+.bar{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.bar .track{flex:1;height:8px;border:1px solid var(--divider);background:var(--surface)}
+.bar .fill{height:100%;background:var(--a);transition:width .3s}
+.bar .lbl{font-family:var(--head);font-weight:600;font-size:15px;letter-spacing:.06em;white-space:nowrap}
 
-.sheet{background:var(--panel);border:1px solid var(--char);padding:16px 14px 10px}
-.new{display:grid;grid-template-columns:1fr 160px 152px auto;gap:8px;padding-bottom:15px;border-bottom:2px solid var(--char)}
-input[type=text],input[type=date],textarea{color:var(--ink);background:#fff;border:1px solid var(--hair);padding:9px;width:100%;min-width:0;font-size:15px}
-textarea{resize:vertical;line-height:1.4}
-input::placeholder,textarea::placeholder{color:#A9ADA6}
-input:focus-visible,textarea:focus-visible{outline:2px solid var(--signal);outline-offset:-2px;border-color:var(--char)}
-.btn{font-family:var(--disp);font-size:14px;letter-spacing:.07em;text-transform:uppercase;background:var(--char);color:#fff;border:1px solid var(--char);padding:9px 18px;cursor:pointer}
-.btn:hover{background:var(--signal);color:var(--char)}
-.btn.ghost{background:transparent;color:var(--muted);border-color:var(--hair)}
-.btn.ghost:hover{background:transparent;color:var(--ink);border-color:var(--char)}
-.btn.ghost.on{color:var(--char);border-color:var(--char);background:var(--signal)}
-.btn:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
-.filters{display:flex;gap:6px;padding:13px 0;flex-wrap:wrap;align-items:center}
-.filters .btn{padding:5px 11px;font-size:12px}
+.new{display:grid;grid-template-columns:minmax(0,1fr) 168px 150px auto;gap:8px;padding:12px;border:1px solid var(--divider);background:var(--surface);margin-bottom:22px}
+.filters{display:flex;gap:2px;margin-bottom:16px;flex-wrap:wrap}
 .filters .sep{flex:1}
 
-ul{list-style:none;margin:0;padding:0}
+.scroll{overflow-x:auto;padding-bottom:4px}
+.grid{min-width:700px}
+.trow{display:grid;grid-template-columns:28px 26px minmax(150px,1fr) 118px 150px 118px 52px;gap:8px}
+.thead{align-items:end;padding:0 4px 7px;border-bottom:2px solid var(--text)}
+.thead>div{font-family:var(--head);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--n600)}
+.gband{display:flex;align-items:center;gap:12px;margin-top:18px;padding:7px 12px 6px;border-bottom:1px solid var(--divider)}
+.gband .lb{font-family:var(--head);font-weight:600;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--n800)}
+.gband .ct{font-family:var(--head);font-size:14px;color:var(--n600)}
+.gband .hint{font-size:12.5px;color:var(--n500);margin-left:auto}
+.gband.alarm{background:var(--a900);border-bottom:0;padding:7px 12px;color:var(--bg)}
+.gband.alarm .lb{color:var(--bg)}
+.gband.alarm .ct,.gband.alarm .hint{color:var(--a400)}
+
 li.item{border-bottom:1px solid var(--hair)}
-li.item:last-child{border-bottom:0}
-li.item:hover{background:#F5F5F1}
-li.item.open{background:#F5F5F1}
-.row{display:grid;grid-template-columns:26px 22px 1fr 150px 140px 38px 26px;gap:6px;align-items:center;padding:7px 0}
-.num{font-family:var(--disp);font-size:13px;color:#ADB1AA;text-align:right}
-.box{width:20px;height:20px;border:1.5px solid var(--char);background:#fff;cursor:pointer;padding:0;display:grid;place-items:center;font-size:12px;line-height:1;color:transparent}
-.box:hover{border-color:var(--ok)}
-.box:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
-.item.done .box{background:var(--ok);border-color:var(--ok);color:#fff}
-.stack{min-width:0}
-.cell{color:var(--ink);background:transparent;border:1px solid transparent;padding:5px 7px;width:100%;min-width:0;font-size:15px}
-.cell:hover{border-color:var(--hair);background:#fff}
-.cell:focus-visible{outline:2px solid var(--signal);outline-offset:-2px;background:#fff;border-color:var(--char)}
-.cell.who{color:var(--muted);font-size:13.5px}
-.peek{font-size:12px;color:var(--muted);padding:0 8px 3px;display:flex;gap:9px;align-items:center;flex-wrap:nowrap;overflow:hidden}
-.peek .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.peek .sig{font-family:var(--mono);font-size:11px;white-space:nowrap;display:flex;align-items:center;gap:5px;color:#8A8E87;flex:none}
-.peek .dot{width:7px;height:7px;border-radius:50%;flex:none}
-.item.done .cell.task{text-decoration:line-through;color:#A9ADA6}
-.item.done .cell.who,.item.done .peek{color:#B5B9B1}
+li.item:hover,li.item.open{background:var(--a100)}
+li.item .trow{align-items:center;padding:9px 4px}
+.box{width:20px;height:20px;background:var(--surface);border:1.5px solid var(--text);cursor:pointer;padding:0;display:grid;place-items:center;font-size:12px;line-height:1;color:transparent}
+.box:hover{border-color:var(--a);background:var(--a200)}
+.item.done .box{background:var(--a);border-color:var(--a);color:var(--bg)}
+.num{font-family:var(--head);font-size:14px;color:var(--n400);text-align:right}
+.cell{background:transparent;border:1px solid transparent;padding:3px 6px;width:100%;min-width:0}
+.cell:hover{border-color:var(--divider);background:var(--bg)}
+.cell:focus-visible{outline:2px solid var(--a);outline-offset:-2px;background:var(--bg);border-color:var(--a)}
+.cell.task{font-weight:500}
+.item.done .cell.task{color:var(--n500);text-decoration:line-through}
+.cell.who{font-size:13.5px;color:var(--n800)}
+.note{font-size:12.5px;color:var(--n600);padding:0 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.due{position:relative;display:flex;align-items:center;gap:7px;border:1px solid var(--divider);padding:3px 8px;color:var(--n700)}
+.due input{background:transparent;border:0;padding:0;width:100%;min-width:0;font-family:var(--head);font-weight:600;font-size:14.5px;letter-spacing:.04em;color:inherit}
+.due input:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+.due .dn{font-size:12px;color:var(--n500);white-space:nowrap}
+.due.soon{border-color:var(--a400);color:var(--a700)}
+.due.today{border-color:var(--a);background:var(--a200);color:var(--a800)}
+.due.today .dn{color:var(--a800)}
+.due.late{border-color:var(--a900);background:var(--a900);color:var(--bg)}
+.due.late .dn{color:var(--a400)}
+.due.none{border-style:dashed;border-color:rgba(29,31,32,.3);color:var(--n500)}
+.due.none:hover{border-color:var(--a);color:var(--a700)}
+.item.done .due{border-color:var(--divider);background:transparent;color:var(--n600)}
+.item.done .due .dn{color:var(--n500)}
+.sig{display:flex;align-items:center;gap:7px;min-width:0;font-size:12.5px;color:var(--n700)}
+.sig .dot{width:8px;height:8px;flex:none}
+.sig .tx{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.clip{background:transparent;border:1px solid transparent;cursor:pointer;padding:4px 0;font-family:var(--head);font-weight:600;font-size:14px;color:var(--n400)}
+.clip:hover{border-color:var(--divider);color:var(--n700)}
+.clip.has{border-color:var(--divider);color:var(--a900)}
+.kill{background:none;border:0;color:var(--n400);cursor:pointer;font-size:15px;line-height:1;padding:4px}
+.kill:hover{color:var(--a900)}
 
-.due{font-family:var(--mono);font-size:12.5px;color:var(--muted);background:#fff;border:1px solid var(--hair);padding:7px}
-.due.soon{border-color:#C9A310;background:#FFF9E2;color:#6B5405}
-.due.late{border-color:var(--alarm);background:#FAEAE6;color:var(--alarm);font-weight:500}
-.item.done .due{opacity:.4;border-color:var(--hair);background:#fff;color:var(--muted);font-weight:400}
+.drawer{display:none;grid-template-columns:1fr 1fr;gap:22px;padding:6px 4px 20px 62px;background:var(--surface)}
+li.item.open .drawer{display:grid}
+.drawer textarea{background:var(--bg);border:1px solid var(--divider);padding:10px;width:100%;min-height:78px;resize:vertical;line-height:1.45}
+.files{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}
+.file{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--divider);background:var(--bg);padding:6px 10px;font-size:13px;max-width:100%}
+.file em{font-style:normal;font-size:11.5px;color:var(--n500);white-space:nowrap}
+.file button{background:none;border:0;color:var(--n400);cursor:pointer;padding:0 2px}
+.file button:hover{color:var(--a900)}
+.drop{border:1.5px dashed rgba(29,31,32,.22);background:var(--bg);padding:12px;text-align:center;font-size:13px;color:var(--n600);cursor:pointer}
+.drop:hover{border-color:var(--a);color:var(--a700)}
+.drop.hot{border-color:var(--a);background:var(--a100);color:var(--a800)}
+.nofiles{font-size:13px;color:var(--n500)}
+.empty{padding:40px 4px;color:var(--n600)}
+.empty b{display:block;font-family:var(--head);font-weight:600;font-size:22px;letter-spacing:.08em;text-transform:uppercase;color:var(--text);margin-bottom:4px}
+.foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:26px;padding-top:14px;border-top:1px solid var(--divider);font-size:12.5px;color:var(--n600)}
+.foot button{background:none;border:0;color:var(--n600);text-decoration:underline;cursor:pointer;padding:0}
+.foot button:hover{color:var(--text)}
 
-.clip{background:transparent;border:1px solid transparent;color:var(--muted);cursor:pointer;font-size:13px;padding:5px;display:flex;align-items:center;gap:3px;justify-content:center}
-.clip:hover{border-color:var(--hair);background:#fff;color:var(--ink)}
-.clip.has{color:var(--char);font-weight:600}
-.clip small{font-family:var(--mono);font-size:11px}
-.kill{background:transparent;border:0;color:#C8CAC3;cursor:pointer;font-size:16px;line-height:1;padding:4px}
-.kill:hover{color:var(--alarm)}
-.kill:focus-visible{outline:2px solid var(--alarm);outline-offset:1px}
+/* доска сроков */
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
+.col .cap{display:flex;align-items:baseline;gap:8px;padding:8px 11px;border-bottom:2px solid var(--text);margin-bottom:10px}
+.col .cap .lb{font-family:var(--head);font-weight:600;font-size:14px;letter-spacing:.13em;text-transform:uppercase;color:var(--n800)}
+.col .cap .ct{font-family:var(--head);font-size:16px;color:var(--n600);margin-left:auto}
+.col .cap.alarm{background:var(--a900);border-bottom:0;color:var(--bg)}
+.col .cap.alarm .lb{color:var(--bg)}.col .cap.alarm .ct{color:var(--a400)}
+.stack{display:flex;flex-direction:column;gap:8px}
+.tile{border:1px solid var(--divider);padding:11px 12px;background:var(--bg)}
+.tile:hover{border-color:var(--a)}
+.tile .tt{font-size:14.5px;font-weight:500;line-height:1.3}
+.tile .tw{font-size:12.5px;color:var(--n700);margin-top:2px}
+.tile .tf{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:8px;border-top:1px solid var(--hair);font-family:var(--head);font-weight:600;font-size:14px;letter-spacing:.04em}
+.tile .tf .dn{font-family:var(--body);font-weight:400;font-size:12px;color:var(--n600)}
+.tile .tf .dot{width:8px;height:8px;flex:none;margin-left:auto}
+.tile .head{display:flex;align-items:flex-start;gap:9px}
+.tile .box{width:18px;height:18px;margin-top:2px;flex:none}
 
-.drawer{display:none;padding:4px 0 18px 54px}
-li.item.open .drawer{display:block}
-.drawer h4{font-family:var(--disp);font-weight:500;font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 7px}
-.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.files{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 9px}
-.file{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--hair);background:#fff;padding:6px 10px;font-size:13px;max-width:100%}
-.file a{color:var(--ink);text-decoration:none;border-bottom:1.5px solid var(--signal);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.file a:hover{border-bottom-color:var(--char)}
-.file em{font-family:var(--mono);font-style:normal;color:#A9ADA6;font-size:11px;white-space:nowrap}
-.file button{background:none;border:0;color:#C8CAC3;cursor:pointer;font-size:14px;padding:0 2px}
-.file button:hover{color:var(--alarm)}
-.nofiles{font-size:13px;color:#A9ADA6}
-.drop{border:1.5px dashed var(--hair);background:#fff;padding:12px;text-align:center;font-size:13px;color:var(--muted);cursor:pointer}
-.drop:hover{border-color:var(--char);color:var(--ink)}
-.drop.hot{border-color:var(--signal);background:#FFFBEA;color:var(--ink)}
+/* сводка */
+.sum{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:30px;align-items:start}
+.sub2{font-family:var(--head);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--n600);padding-bottom:7px;border-bottom:2px solid var(--text)}
+.urow{display:grid;grid-template-columns:112px minmax(0,1fr) 116px 120px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--hair)}
+.chip{padding:3px 8px;border:1px solid var(--a400);color:var(--a700);font-family:var(--head);font-weight:600;font-size:14px;letter-spacing:.04em;text-align:center}
+.chip.late{background:var(--a900);border-color:var(--a900);color:var(--bg)}
+.objsum{display:block;width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--hair);padding:13px 4px;cursor:pointer}
+.objsum:hover{background:var(--a100)}
+.objsum .track{height:6px;border:1px solid var(--divider);background:var(--surface);margin:7px 0 6px}
 
-.empty{padding:28px 4px 32px;color:var(--muted);font-size:14px}
-.empty b{display:block;font-family:var(--disp);font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);margin-bottom:5px}
-.foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:16px;padding-top:12px;border-top:1px solid var(--hair);font-size:12px;color:var(--muted)}
-.foot button{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
-.foot button:hover{color:var(--ink)}
-.foot #drop-obj:hover{color:var(--alarm)}
-
-/* ---------------- ИСТОРИЯ ---------------- */
-#hist{position:fixed;top:0;right:0;bottom:0;width:400px;max-width:92vw;background:var(--panel);border-left:1px solid var(--char);transform:translateX(102%);transition:transform .22s ease;z-index:40;display:flex;flex-direction:column;box-shadow:-14px 0 34px rgba(0,0,0,.12)}
-#hist.on{transform:none}
-.hist-top{background:var(--char);color:#F2F2EE;padding:13px 16px;display:flex;justify-content:space-between;align-items:center}
-.hist-top h3{font-family:var(--disp);font-weight:500;font-size:15px;letter-spacing:.11em;text-transform:uppercase;margin:0}
-.hist-top button{background:none;border:0;color:#93968F;font-size:20px;cursor:pointer;line-height:1}
-.hist-top button:hover{color:#fff}
-.hist-list{overflow:auto;padding:6px 16px 30px}
-.entry{display:grid;grid-template-columns:22px 1fr;gap:10px;padding:11px 0;border-bottom:1px solid var(--hair)}
-.entry .ava{width:22px;height:22px;font-size:11px}
-.entry time{display:block;font-family:var(--mono);font-size:11px;color:#9CA098;margin-bottom:2px}
-.entry p{margin:0;font-size:13.5px;line-height:1.4}
-.entry b{font-weight:600}
-#veil{position:fixed;inset:0;background:rgba(20,22,20,.32);opacity:0;pointer-events:none;transition:opacity .2s;z-index:35}
+/* история */
+#veil{position:fixed;inset:0;background:rgba(29,31,32,.3);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
 #veil.on{opacity:1;pointer-events:auto}
+#hist{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:92vw;background:var(--bg);border-left:1px solid var(--a900);transform:translateX(102%);transition:transform .22s ease;z-index:45;display:flex;flex-direction:column}
+#hist.on{transform:none}
+.htop{display:flex;align-items:center;justify-content:space-between;background:var(--a900);color:var(--bg);padding:13px 18px}
+.htop h3{font-family:var(--head);font-weight:600;font-size:16px;letter-spacing:.12em;text-transform:uppercase;margin:0}
+.htop button{background:none;border:0;color:var(--a400);font-size:19px;cursor:pointer}
+.htop button:hover{color:var(--bg)}
+.hlist{overflow:auto;padding:4px 18px 40px}
+.entry{display:grid;grid-template-columns:24px 84px minmax(0,1fr);gap:11px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--hair)}
+.entry .ava{width:24px;height:24px;font-size:12px}
+.entry time{font-family:var(--head);font-size:14px;letter-spacing:.06em;color:var(--n600)}
+.entry p{margin:0;font-size:14.5px}
 
-#toast{position:fixed;left:16px;bottom:16px;background:var(--char);color:#fff;font-size:13px;padding:10px 15px;z-index:60;opacity:0;transform:translateY(8px);transition:opacity .18s,transform .18s;pointer-events:none;max-width:80vw}
+#toast{position:fixed;left:18px;bottom:18px;background:var(--a900);color:var(--bg);font-size:13.5px;padding:10px 15px;z-index:70;opacity:0;transform:translateY(8px);transition:opacity .18s,transform .18s;pointer-events:none;max-width:80vw}
 #toast.on{opacity:1;transform:none}
-#toast.bad{background:var(--alarm)}
 
-@media (max-width:860px){
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .side{border-right:0;border-bottom:1px solid var(--divider);min-height:0;padding:16px 0 18px;display:flex;gap:8px;overflow-x:auto;align-items:stretch}
+  .side .k,.sidenote{display:none}
+  .obj{width:auto;flex:none;border-left:0;border:1px solid var(--divider);margin-left:12px;padding:9px 12px;min-height:44px}
+  .obj:last-of-type{margin-right:12px}
+  .obj.on{border-color:var(--a900);background:var(--n200)}
+  .side .btn.dash{margin:0 12px 0 0;align-self:center}
+  main{padding:20px 14px 60px}
+  .mhead{flex-wrap:wrap;gap:10px}
+  .mhead .h{font-size:32px}
+  .plate{grid-template-columns:repeat(2,1fr)}
+  .plate>div:nth-child(2){border-right:0}
+  .plate>div:nth-child(-n+2){border-bottom:1px solid var(--divider)}
   .new{grid-template-columns:1fr 1fr}
-  .new .task-in{grid-column:1/3}
-  .new .btn{grid-column:1/3}
-  .row{grid-template-columns:26px 1fr 132px 36px 26px;row-gap:2px}
-  .num{display:none}
-  .stack{grid-column:2/6}
-  .cell.who{grid-column:2/3;padding-top:0}
-  .due{grid-column:3/4}
-  .drawer{padding-left:26px}
-  .dgrid{grid-template-columns:1fr}
-  .logo{font-size:16px}
-  .me span{display:none}
+  .new .task-in,.new .btn{grid-column:1/3}
+  .board{grid-template-columns:1fr}
+  .sum{grid-template-columns:1fr}
+  .urow{grid-template-columns:100px minmax(0,1fr);row-gap:2px}
+  .urow .uwho,.urow .udn{display:none}
+  .drawer{grid-template-columns:1fr;padding-left:20px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
 <body>
 
-<!-- ВХОД -->
 <div id="gate">
-  <div class="gate-card">
-    <div class="gate-tape"></div>
-    <h1>Журнал работ</h1>
-    <p>Гараж · Объект · Сладкая планета</p>
-    <div class="gate-label">Кто пришёл</div>
+  <div class="gcard">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <div class="k">Внутренний сервис бригады</div>
+    <div class="t">Журнал работ</div>
+    <div class="sub" id="gate-objects">Объекты, задачи, сроки и файлы</div>
+    <div class="k">Кто пришёл</div>
     <div class="people" id="people"></div>
-    <div class="gate-label">Пароль</div>
+    <div class="k">Пароль</div>
     <div class="pin">
-      <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="······">
-      <button id="enter">Войти</button>
+      <input id="pin" class="in" type="password" inputmode="numeric" autocomplete="current-password" placeholder="······">
+      <button class="btn pri" id="enter" style="padding:0 24px">Войти</button>
     </div>
-    <div class="gate-err" id="gate-err"></div>
+    <div class="gerr" id="gate-err"></div>
   </div>
 </div>
 
-<!-- ПРИЛОЖЕНИЕ -->
-<div class="top">
-  <div class="logo">Журнал <i>работ</i></div>
-  <div class="spacer"></div>
+<div class="appbar">
+  <div class="brand">Журнал работ</div>
+  <div class="vline"></div>
+  <div class="today" id="today"></div>
+  <div style="flex:1"></div>
   <div class="me" id="me"></div>
-  <button class="tbtn" id="open-hist">История</button>
-  <button class="tbtn" id="exit">Выйти</button>
+  <button class="btn" id="open-sum">Сводка</button>
+  <button class="btn" id="open-hist">История</button>
+  <button class="btn link" id="exit">Выйти</button>
 </div>
 
-<div class="wrap">
-  <div class="tape"><i id="bar"></i></div>
-  <div class="legend"><span id="legend">Загружаю…</span><b id="pct"></b></div>
+<div class="layout">
+  <aside class="side">
+    <span class="k">Объекты</span>
+    <div id="objects"></div>
+    <button class="btn dash" id="add-obj" style="margin:14px 18px 0;width:calc(100% - 36px)">+ объект</button>
+    <div class="sidenote">Правки видят все, кто вошёл. Страница подтягивает чужое раз в 15 секунд.</div>
+  </aside>
 
-  <div class="tabs" id="tabs"></div>
-  <div class="sheet">
-    <div class="new">
-      <input type="text" class="task-in" id="f-task" placeholder="Что сделать">
-      <input type="text" id="f-who" placeholder="Кто делает">
-      <input type="date" id="f-due" title="Срок">
-      <button class="btn" id="add">Добавить</button>
+  <main>
+    <div class="mhead">
+      <div style="min-width:0">
+        <div class="k" id="mkicker">Объект</div>
+        <div class="h" id="objname">…</div>
+      </div>
+      <div style="flex:1"></div>
+      <div class="views">
+        <button class="btn on" data-v="list">Список по срокам</button>
+        <button class="btn" data-v="board">Доска сроков</button>
+      </div>
     </div>
-    <div class="filters">
-      <button class="btn ghost on" data-f="all">Все</button>
-      <button class="btn ghost" data-f="open">В работе</button>
-      <button class="btn ghost" data-f="done">Сделано</button>
-      <span class="sep"></span>
-      <button class="btn ghost" id="sort">Сначала срочные</button>
+
+    <div id="view-object">
+      <div class="plate">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div><div class="k">Всего задач</div><div class="num" id="st-all">0</div></div>
+        <div><div class="k">В работе</div><div class="num" id="st-open">0</div></div>
+        <div class="alarm"><div class="k">Просрочено</div><div class="num" id="st-late">0</div></div>
+        <div><div class="k">Без срока</div><div class="num" id="st-nodue">0</div></div>
+      </div>
+      <div class="bar">
+        <div class="track"><div class="fill" id="fill" style="width:0"></div></div>
+        <div class="lbl" id="progress">—</div>
+      </div>
+
+      <div class="new">
+        <input type="text" class="in task-in" id="f-task" placeholder="Что сделать">
+        <input type="text" class="in" id="f-who" placeholder="Кто делает">
+        <input type="date" class="in" id="f-due" title="Срок">
+        <button class="btn pri" id="add">Добавить</button>
+      </div>
+
+      <div id="list-view">
+        <div class="filters">
+          <button class="btn on" data-f="all">Все</button>
+          <button class="btn" data-f="open">В работе</button>
+          <button class="btn" data-f="done">Сделано</button>
+        </div>
+        <div class="scroll">
+          <div class="grid">
+            <div class="trow thead">
+              <div></div><div style="text-align:right">№</div><div>Задача</div><div>Исполнитель</div><div>Срок</div><div>Кто трогал</div><div style="text-align:center">Файлы</div>
+            </div>
+            <div id="groups"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="board-view" class="board" style="display:none"></div>
+
+      <div class="foot">
+        <span>Сроки — главная колонка: просроченное собрано сверху, «без срока» видно отдельно.</span>
+        <span><button id="backup">Скачать копию</button> · <button id="drop-obj">Удалить этот объект</button></span>
+      </div>
     </div>
-    <ul id="list"></ul>
-    <div class="foot">
-      <span id="status">Правки видят все, кто вошёл</span>
-      <span>
-        <button id="backup">Скачать копию</button> ·
-        <button id="drop-obj">Удалить этот объект</button>
-      </span>
+
+    <div id="view-sum" style="display:none">
+      <div class="sum">
+        <div>
+          <div class="sub2">Ближайшие и просроченные сроки</div>
+          <div id="upcoming"></div>
+        </div>
+        <div>
+          <div class="sub2">Объекты</div>
+          <div id="objsum"></div>
+        </div>
+      </div>
     </div>
-  </div>
+  </main>
 </div>
 
 <div id="veil"></div>
 <aside id="hist">
-  <div class="hist-top"><h3>История</h3><button id="close-hist" aria-label="Закрыть">✕</button></div>
-  <div class="hist-list" id="hist-list"></div>
+  <div class="htop"><h3>История</h3><button id="close-hist" aria-label="Закрыть">✕</button></div>
+  <div class="hlist" id="hist-list"></div>
 </aside>
 <div id="toast"></div>
 
 <script>
 const $ = s => document.querySelector(s);
-let S = null, filter = 'all', byDue = false, pickedUser = null;
-const open = new Set();
+const el = (tag, cls, text) => { const d = document.createElement(tag); if(cls) d.className = cls; if(text != null) d.textContent = text; return d; };
+let S = null, filter = 'all', view = 'list', screen = 'object', pickedUser = null;
+const opened = new Set();
 
-/* ---------- сеть ---------- */
+/* ─── цвета людей: шаги стальной шкалы, а не произвольные ─── */
+const RAMP = ['#2c455d', '#5980a6', '#416180', '#94bce3'];
+const PEOPLE = [{ id:'katya', name:'Катя' }, { id:'zhenya', name:'Женя' }, { id:'arian', name:'Ариан' }];
+const tone = id => { const i = (S ? S.users : PEOPLE).findIndex(u => u.id === id); return RAMP[(i < 0 ? 0 : i) % RAMP.length]; };
+const userOf = id => (S && S.users.find(u => u.id === id)) || PEOPLE.find(u => u.id === id) || null;
+
+/* ─── сеть ─── */
 async function api(path, method, payload){
   const r = await fetch(path, {
     method: method || 'GET',
@@ -268,274 +386,249 @@ async function api(path, method, payload){
   return data;
 }
 async function act(path, method, payload, okMsg){
-  try{
-    S = await api(path, method, payload);
-    render();
-    if(okMsg) toast(okMsg);
-  }catch(e){ toast(e.message, true); }
+  try{ S = await api(path, method, payload); render(); if(okMsg) toast(okMsg); }
+  catch(e){ toast(e.message); }
 }
-
 let toastTimer;
-function toast(msg, bad){
-  const el = $('#toast');
-  el.textContent = msg;
-  el.classList.toggle('bad', !!bad);
-  el.classList.add('on');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('on'), 2600);
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 2600);
 }
 
-/* ---------- вход ---------- */
-const PEOPLE = [
-  { id:'katya',  name:'Катя',  color:'#A8385F' },
-  { id:'zhenya', name:'Женя',  color:'#2E5EAA' },
-  { id:'arian',  name:'Ариан', color:'#3C7A52' }
-];
-function showGate(){
-  $('#gate').classList.add('on');
-  $('#gate-err').textContent = '';
-  $('#pin').value = '';
+/* ─── даты ─── */
+const today = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+const daysLeft = due => due ? Math.round((new Date(due + 'T00:00:00') - today()) / 86400000) : null;
+const fmt = due => { if(!due) return ''; const p = due.split('-'); return p[2] + '.' + p[1] + '.' + p[0].slice(2); };
+function dueNote(d, done){
+  if(done) return 'закрыто';
+  if(d === null) return 'срок не задан';
+  if(d < 0) return 'просрочено ' + (-d) + ' дн.';
+  if(d === 0) return 'срок сегодня';
+  if(d === 1) return 'остался 1 день';
+  return 'через ' + d + ' дн.';
 }
+function when(iso){
+  if(!iso) return '';
+  const d = new Date(iso), n = new Date();
+  const t = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  return d.toDateString() === n.toDateString() ? t
+    : String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0') + ' ' + t;
+}
+const kb = n => n > 1048576 ? (n / 1048576).toFixed(1) + ' МБ' : Math.max(1, Math.round(n / 1024)) + ' КБ';
+const bucket = t => {
+  if(t.done) return 'done';
+  const d = daysLeft(t.due);
+  if(d === null) return 'none';
+  if(d < 0) return 'late';
+  if(d <= 7) return 'week';
+  return 'later';
+};
+function stats(o){
+  const all = o.tasks.length, done = o.tasks.filter(t => t.done).length;
+  return { all, done, open: all - done,
+    late: o.tasks.filter(t => bucket(t) === 'late').length,
+    noDue: o.tasks.filter(t => bucket(t) === 'none').length,
+    pct: all ? Math.round(done / all * 100) : 0 };
+}
+const cur = () => S.objects.find(o => o.id === S.activeId) || S.objects[0];
+function ava(u, size){
+  const d = el('div', 'ava');
+  d.style.width = d.style.height = size + 'px';
+  d.style.fontSize = Math.round(size * .48) + 'px';
+  d.style.background = u ? tone(u.id) : '#7a7a7d';
+  d.textContent = u ? u.name[0] : '?';
+  return d;
+}
+
+/* ─── вход ─── */
+function showGate(){ $('#gate').classList.add('on'); $('#gate-err').textContent = ''; $('#pin').value = ''; }
 function buildGate(){
-  const box = $('#people');
-  box.innerHTML = '';
-  PEOPLE.forEach(u => {
-    const b = document.createElement('button');
-    b.className = 'person';
-    const a = document.createElement('div');
-    a.className = 'ava'; a.style.background = u.color; a.textContent = u.name[0];
-    const s = document.createElement('span'); s.textContent = u.name;
-    b.append(a, s);
-    b.onclick = () => {
-      pickedUser = u.id;
-      [...box.children].forEach(c => c.classList.toggle('on', c === b));
-      $('#pin').focus();
-    };
+  const box = $('#people'); box.innerHTML = '';
+  PEOPLE.forEach((u, i) => {
+    const b = el('button', 'person');
+    const a = el('div', 'ava'); a.style.width = a.style.height = '34px'; a.style.fontSize = '17px';
+    a.style.background = RAMP[i % RAMP.length]; a.textContent = u.name[0];
+    b.append(a, el('span', null, u.name));
+    b.onclick = () => { pickedUser = u.id; [...box.children].forEach(c => c.classList.toggle('on', c === b)); $('#pin').focus(); };
     box.appendChild(b);
   });
 }
 async function login(){
   if(!pickedUser){ $('#gate-err').textContent = 'Сначала выберите, кто вы'; return; }
-  const pass = $('#pin').value;
-  if(!pass){ $('#gate-err').textContent = 'Введите пароль'; return; }
+  if(!$('#pin').value){ $('#gate-err').textContent = 'Введите пароль'; return; }
   try{
-    await api('/api/login', 'POST', { user:pickedUser, password:pass });
+    await api('/api/login', 'POST', { user:pickedUser, password:$('#pin').value });
     $('#gate').classList.remove('on');
-    await boot();
-    toast('С возвращением');
-  }catch(e){
-    $('#gate-err').textContent = e.message;
-    $('#pin').value = ''; $('#pin').focus();
-  }
+    await boot(); toast('С возвращением');
+  }catch(e){ $('#gate-err').textContent = e.message; $('#pin').value = ''; $('#pin').focus(); }
 }
 $('#enter').onclick = login;
 $('#pin').addEventListener('keydown', e => { if(e.key === 'Enter') login(); });
 $('#exit').onclick = async () => { await fetch('/api/logout', { method:'POST' }); pickedUser = null; buildGate(); showGate(); };
 
-/* ---------- помощники ---------- */
-const userOf = id => (S && S.users.find(u => u.id === id)) || PEOPLE.find(u => u.id === id) || null;
-const today = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
-function daysLeft(due){ if(!due) return null; return Math.round((new Date(due + 'T00:00:00') - today()) / 86400000); }
-function dueLabel(n){
-  if(n === null) return '';
-  if(n < 0) return 'просрочено на ' + (-n) + ' дн.';
-  if(n === 0) return 'срок сегодня';
-  if(n === 1) return 'остался 1 день';
-  if(n < 5) return 'осталось ' + n + ' дн.';
-  return '';
-}
-const kb = n => n > 1048576 ? (n / 1048576).toFixed(1) + ' МБ' : Math.max(1, Math.round(n / 1024)) + ' КБ';
-function when(iso){
-  if(!iso) return '';
-  const d = new Date(iso), n = new Date();
-  const sameDay = d.toDateString() === n.toDateString();
-  const time = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
-  return sameDay ? time : String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth() + 1).padStart(2,'0') + ' ' + time;
-}
-function ava(u, cls){
-  const d = document.createElement('div');
-  d.className = 'ava' + (cls ? ' ' + cls : '');
-  d.style.background = u ? u.color : '#9CA098';
-  d.textContent = u ? u.name[0] : '?';
-  return d;
-}
-const cur = () => S.objects.find(o => o.id === S.activeId) || S.objects[0];
-
-/* ---------- отрисовка ---------- */
+/* ─── отрисовка ─── */
 function render(){
   if(!S) return;
   if(!S.objects.some(o => o.id === S.activeId)) S.activeId = (S.objects[0] || {}).id;
+  const d = new Date();
+  $('#today').textContent = String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + d.getFullYear();
+  $('#gate-objects').textContent = S.objects.map(o => o.name).join(' · ');
 
-  const me = $('#me');
-  me.innerHTML = '';
-  me.append(ava(S.me), Object.assign(document.createElement('span'), { textContent:S.me.name }));
+  const me = $('#me'); me.innerHTML = '';
+  me.append(ava(S.me, 26), el('span', null, S.me.name));
 
-  const tabs = $('#tabs');
-  tabs.innerHTML = '';
+  const box = $('#objects'); box.innerHTML = '';
   S.objects.forEach(ob => {
-    const b = document.createElement('button');
-    b.className = 'tab' + (ob.id === S.activeId ? ' on' : '');
+    const st = stats(ob);
+    const b = el('button', 'obj' + (ob.id === S.activeId ? ' on' : ''));
     b.title = 'Двойной щелчок — переименовать';
-    const n = document.createElement('span'); n.textContent = ob.name;
-    const c = document.createElement('b'); c.textContent = ob.tasks.filter(t => !t.done).length;
-    b.append(n, c);
-    b.onclick = () => { S.activeId = ob.id; localStorage.setItem('tab', ob.id); render(); };
+    const r1 = el('div', 'row1');
+    r1.append(el('span', 'nm', ob.name), el('span', 'ct', String(st.open)));
+    b.append(r1, el('div', 'sub', 'в работе · просрочено ' + st.late));
+    b.onclick = () => { S.activeId = ob.id; screen = 'object'; localStorage.setItem('tab', ob.id); render(); };
     b.ondblclick = () => {
       const name = prompt('Новое название', ob.name);
       if(name && name.trim()) act('/api/object/' + ob.id, 'PATCH', { name:name.trim() }, 'Переименовано');
     };
-    tabs.appendChild(b);
+    box.appendChild(b);
   });
-  const plus = document.createElement('button');
-  plus.className = 'tab tab-add'; plus.textContent = '+ объект';
-  plus.onclick = () => {
-    const name = prompt('Название объекта');
-    if(name && name.trim()) act('/api/object', 'POST', { name:name.trim() }, 'Объект добавлен');
-  };
-  tabs.appendChild(plus);
 
-  const o = cur();
-  const done = o.tasks.filter(t => t.done).length, all = o.tasks.length;
-  const pct = all ? Math.round(done / all * 100) : 0;
-  const late = o.tasks.filter(t => !t.done && daysLeft(t.due) !== null && daysLeft(t.due) < 0).length;
-  $('#bar').style.width = pct + '%';
-  const lg = $('#legend'); lg.innerHTML = '';
-  lg.append(o.name + ' — сделано ' + done + ' из ' + all);
-  if(late){
-    const s = document.createElement('span');
-    s.className = 'late-flag'; s.textContent = '  ·  просрочено: ' + late;
-    lg.appendChild(s);
-  }
-  $('#pct').textContent = pct + '%';
+  $('#view-object').style.display = screen === 'object' ? '' : 'none';
+  $('#view-sum').style.display = screen === 'sum' ? '' : 'none';
+  document.querySelector('.views').style.visibility = screen === 'object' ? '' : 'hidden';
+  $('#open-sum').classList.toggle('on', screen === 'sum');
 
-  const list = $('#list');
-  list.innerHTML = '';
-  let rows = o.tasks.filter(t => filter === 'all' || (filter === 'done') === !!t.done);
-  if(byDue) rows = rows.slice().sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999'));
-  if(!rows.length){
-    const d = document.createElement('div');
-    d.className = 'empty'; d.innerHTML = '<b>Пусто</b>';
-    d.append(filter === 'all' ? 'Впишите первую задачу в строку сверху.'
-           : filter === 'done' ? 'Сделанного пока нет.' : 'Всё закрыто. Хорошая новость.');
-    list.appendChild(d);
-  } else {
-    rows.forEach((t, i) => list.appendChild(item(o, t, i + 1)));
-  }
+  if(screen === 'sum'){ $('#mkicker').textContent = 'Сводка по всем объектам'; $('#objname').textContent = 'Что горит сейчас'; renderSum(); renderHist(); return; }
+
+  const o = cur(), st = stats(o);
+  $('#mkicker').textContent = 'Объект';
+  $('#objname').textContent = o.name;
+  $('#st-all').textContent = st.all;
+  $('#st-open').textContent = st.open;
+  $('#st-late').textContent = st.late;
+  $('#st-nodue').textContent = st.noDue;
+  $('#fill').style.width = st.pct + '%';
+  $('#progress').textContent = 'Сделано ' + st.done + ' из ' + st.all + ' · ' + st.pct + '%';
+
+  $('#list-view').style.display = view === 'list' ? '' : 'none';
+  $('#board-view').style.display = view === 'board' ? '' : 'none';
+  if(view === 'list') renderList(o); else renderBoard(o);
   renderHist();
 }
 
-function item(o, t, n){
-  const li = document.createElement('li');
-  li.className = 'item' + (t.done ? ' done' : '') + (open.has(t.id) ? ' open' : '');
-  const row = document.createElement('div'); row.className = 'row';
+const GROUPS = [
+  ['late','Просрочено','сроки прошли — разобрать первыми'],
+  ['week','Эта неделя','ближайшие семь дней'],
+  ['later','Позже','срок стоит, время есть'],
+  ['none','Без срока','срок не поставлен'],
+  ['done','Сделано','закрыто']
+];
 
-  const box = document.createElement('button');
-  box.className = 'box'; box.textContent = '✓';
+function renderList(o){
+  const host = $('#groups'); host.innerHTML = '';
+  const rows = o.tasks.filter(t => filter === 'all' ? true : (filter === 'done' ? t.done : !t.done));
+  let num = 0, shown = 0;
+  GROUPS.forEach(([key, label, hint]) => {
+    const items = rows.filter(t => bucket(t) === key);
+    if(!items.length) return;
+    shown += items.length;
+    const band = el('div', 'gband' + (key === 'late' ? ' alarm' : ''));
+    band.append(el('span', 'lb', label), el('span', 'ct', String(items.length)), el('span', 'hint', hint));
+    host.appendChild(band);
+    const ul = el('ul');
+    items.forEach(t => { num++; ul.appendChild(item(t, num)); });
+    host.appendChild(ul);
+  });
+  if(!shown){
+    const e = el('div', 'empty');
+    e.append(el('b', null, 'Пусто'),
+      filter === 'done' ? 'Сделанного пока нет.' : filter === 'open' ? 'Всё закрыто. Хорошая новость.' : 'Впишите первую задачу сверху — срок можно поставить сразу.');
+    host.appendChild(e);
+  }
+}
+
+function dueCell(t){
+  const d = daysLeft(t.due);
+  const key = t.done ? 'done' : d === null ? 'none' : d < 0 ? 'late' : d === 0 ? 'today' : d <= 7 ? 'soon' : '';
+  const wrap = el('div', 'due' + (key && key !== 'done' ? ' ' + key : ''));
+  const inp = el('input'); inp.type = 'date'; inp.value = t.due || ''; inp.title = 'Срок';
+  inp.onchange = () => act('/api/task/' + t.id, 'PATCH', { due:inp.value });
+  wrap.append(inp, el('span', 'dn', dueNote(d, t.done)));
+  return wrap;
+}
+
+function item(t, n){
+  const li = el('li', 'item' + (t.done ? ' done' : '') + (opened.has(t.id) ? ' open' : ''));
+  const row = el('div', 'trow');
+
+  const box = el('button', 'box', '✓');
   box.setAttribute('aria-pressed', String(!!t.done));
   box.setAttribute('aria-label', t.done ? 'Вернуть в работу' : 'Отметить сделанным');
   box.onclick = () => act('/api/task/' + t.id, 'PATCH', { done: !t.done });
 
-  const num = document.createElement('div');
-  num.className = 'num'; num.textContent = n;
-
-  const stack = document.createElement('div'); stack.className = 'stack';
-  const task = document.createElement('input');
-  task.type = 'text'; task.className = 'cell task'; task.value = t.task; task.placeholder = 'Что сделать';
+  const stack = el('div'); stack.style.minWidth = '0';
+  const task = el('input', 'cell task'); task.type = 'text'; task.value = t.task; task.placeholder = 'Что сделать';
   task.onchange = () => { if(task.value.trim() !== t.task) act('/api/task/' + t.id, 'PATCH', { task:task.value }); };
   stack.appendChild(task);
+  if(t.note) stack.appendChild(el('div', 'note', t.note));
 
-  const peek = document.createElement('div'); peek.className = 'peek';
-  const bits = [];
-  if(t.note) bits.push(t.note);
-  const dl = daysLeft(t.due);
-  if(!t.done && dl !== null && dueLabel(dl)) bits.push(dueLabel(dl));
-  if(bits.length){
-    const s = document.createElement('span'); s.className = 'txt'; s.textContent = bits.join('  ·  ');
-    peek.appendChild(s);
-  }
-  if(t.by){
-    const u = userOf(t.by);
-    const sig = document.createElement('span'); sig.className = 'sig';
-    const dot = document.createElement('span'); dot.className = 'dot';
-    dot.style.background = u ? u.color : '#9CA098';
-    sig.append(dot, (u ? u.name : '?') + ', ' + when(t.at));
-    peek.appendChild(sig);
-  }
-  if(peek.children.length) stack.appendChild(peek);
-
-  const who = document.createElement('input');
-  who.type = 'text'; who.className = 'cell who'; who.value = t.who; who.placeholder = 'Кто';
+  const who = el('input', 'cell who'); who.type = 'text'; who.value = t.who; who.placeholder = 'не назначен';
   who.onchange = () => { if(who.value.trim() !== t.who) act('/api/task/' + t.id, 'PATCH', { who:who.value }); };
 
-  const due = document.createElement('input');
-  due.type = 'date'; due.className = 'due'; due.value = t.due || ''; due.title = 'Срок';
-  if(!t.done && dl !== null){ due.classList.toggle('late', dl < 0); due.classList.toggle('soon', dl >= 0 && dl <= 3); }
-  due.onchange = () => act('/api/task/' + t.id, 'PATCH', { due:due.value });
+  const sig = el('div', 'sig');
+  if(t.by){
+    const u = userOf(t.by);
+    const dot = el('span', 'dot'); dot.style.background = tone(t.by);
+    sig.append(dot, el('span', 'tx', (u ? u.name : '?') + ', ' + when(t.at)));
+  } else sig.append(el('span', 'tx', '—'));
 
-  const clip = document.createElement('button');
-  clip.className = 'clip' + (t.files.length ? ' has' : '');
+  const clip = el('button', 'clip' + (t.files.length ? ' has' : ''), t.files.length ? String(t.files.length) : '+');
   clip.title = 'Заметка и файлы';
-  clip.append('📎');
-  if(t.files.length){ const s = document.createElement('small'); s.textContent = t.files.length; clip.appendChild(s); }
-  clip.onclick = () => {
-    if(open.has(t.id)) open.delete(t.id); else open.add(t.id);
-    li.classList.toggle('open');
-  };
+  clip.onclick = () => { opened.has(t.id) ? opened.delete(t.id) : opened.add(t.id); li.classList.toggle('open'); };
 
-  const kill = document.createElement('button');
-  kill.className = 'kill'; kill.textContent = '✕';
+  const kill = el('button', 'kill', '✕');
   kill.setAttribute('aria-label', 'Удалить задачу');
   kill.onclick = () => {
-    if(confirm('Удалить «' + (t.task || 'без названия') + '»?')){ open.delete(t.id); act('/api/task/' + t.id, 'DELETE', null, 'Удалено'); }
+    if(confirm('Удалить «' + (t.task || 'без названия') + '»?')){ opened.delete(t.id); act('/api/task/' + t.id, 'DELETE', null, 'Удалено'); }
   };
 
-  row.append(box, num, stack, who, due, clip, kill);
+  row.append(box, el('div', 'num', String(n)), stack, who, dueCell(t), sig, clip);
+  row.appendChild(kill);
   li.append(row, drawer(t));
   return li;
 }
 
 function drawer(t){
-  const d = document.createElement('div'); d.className = 'drawer';
-  const grid = document.createElement('div'); grid.className = 'dgrid';
+  const d = el('div', 'drawer');
 
-  const left = document.createElement('div');
-  const h1 = document.createElement('h4'); h1.textContent = 'Заметка';
-  const ta = document.createElement('textarea');
-  ta.rows = 3; ta.value = t.note || '';
+  const left = el('div');
+  left.append(el('div', 'k', 'Заметка'));
+  const ta = el('textarea'); ta.value = t.note || '';
   ta.placeholder = 'Телефон, счёт, что мешает, о чём договорились';
   ta.onchange = () => { if(ta.value.trim() !== t.note) act('/api/task/' + t.id, 'PATCH', { note:ta.value }, 'Заметка сохранена'); };
-  left.append(h1, ta);
+  left.appendChild(ta);
 
-  const right = document.createElement('div');
-  const h2 = document.createElement('h4'); h2.textContent = 'Файлы';
-  const files = document.createElement('div'); files.className = 'files';
+  const right = el('div');
+  right.append(el('div', 'k', 'Файлы'));
+  const files = el('div', 'files');
   if(t.files.length){
     t.files.forEach(f => {
-      const chip = document.createElement('div'); chip.className = 'file';
-      const a = document.createElement('a');
-      a.href = '/files/' + f.stored; a.target = '_blank'; a.rel = 'noopener'; a.textContent = f.name;
+      const chip = el('div', 'file');
+      const a = el('a', null, f.name); a.href = '/files/' + f.stored; a.target = '_blank'; a.rel = 'noopener';
       const u = userOf(f.by);
-      const em = document.createElement('em');
-      em.textContent = kb(f.size) + (u ? ' · ' + u.name : '');
-      const x = document.createElement('button'); x.textContent = '✕'; x.title = 'Убрать файл';
+      const x = el('button', null, '✕'); x.title = 'Убрать файл';
       x.onclick = () => { if(confirm('Убрать «' + f.name + '»?')) act('/api/task/' + t.id + '/file/' + f.id, 'DELETE', null, 'Файл убран'); };
-      chip.append(a, em, x); files.appendChild(chip);
+      chip.append(a, el('em', null, kb(f.size) + (u ? ' · ' + u.name : '')), x);
+      files.appendChild(chip);
     });
-  } else {
-    const e = document.createElement('span'); e.className = 'nofiles';
-    e.textContent = 'Пока ничего не прикреплено';
-    files.appendChild(e);
-  }
+  } else files.appendChild(el('span', 'nofiles', 'Пока ничего не прикреплено'));
 
-  const drop = document.createElement('div'); drop.className = 'drop';
-  const label = 'Перетащите сюда или нажмите — счета, фото, договоры (до 15 МБ)';
-  drop.textContent = label;
-  const input = document.createElement('input');
-  input.type = 'file'; input.multiple = true; input.style.display = 'none';
-
-  const take = async fileList => {
-    for(const f of fileList){
-      if(f.size > 15 * 1024 * 1024){ toast('«' + f.name + '» больше 15 МБ', true); continue; }
+  const label = 'Перетащите счёт, фото или договор · до 15 МБ';
+  const drop = el('div', 'drop', label);
+  const input = el('input'); input.type = 'file'; input.multiple = true; input.style.display = 'none';
+  const take = async list => {
+    for(const f of list){
+      if(f.size > 15 * 1024 * 1024){ toast('«' + f.name + '» больше 15 МБ'); continue; }
       drop.textContent = 'Загружаю ' + f.name + '…';
       try{
         const b64 = await new Promise((res, rej) => {
@@ -544,50 +637,108 @@ function drawer(t){
           r.onerror = () => rej(new Error('Файл не читается'));
           r.readAsDataURL(f);
         });
-        open.add(t.id);
+        opened.add(t.id);
         S = await api('/api/task/' + t.id + '/file', 'POST', { name:f.name, type:f.type, data:b64 });
-        render(); toast('Файл приложен');
-        return;
-      }catch(e){ toast(e.message, true); }
+        render(); toast('Файл приложен'); return;
+      }catch(e){ toast(e.message); }
     }
-    drop.textContent = label;
-    input.value = '';
+    drop.textContent = label; input.value = '';
   };
   drop.onclick = () => input.click();
   drop.ondragover = e => { e.preventDefault(); drop.classList.add('hot'); };
   drop.ondragleave = () => drop.classList.remove('hot');
   drop.ondrop = e => { e.preventDefault(); drop.classList.remove('hot'); take(e.dataTransfer.files); };
   input.onchange = () => take(input.files);
+  right.append(files, drop, input);
 
-  right.append(h2, files, drop, input);
-  grid.append(left, right);
-  d.appendChild(grid);
+  d.append(left, right);
   return d;
 }
 
-/* ---------- история ---------- */
+function renderBoard(o){
+  const host = $('#board-view'); host.innerHTML = '';
+  GROUPS.slice(0, 4).forEach(([key, label]) => {
+    const items = o.tasks.filter(t => !t.done && bucket(t) === key);
+    const col = el('div', 'col');
+    const cap = el('div', 'cap' + (key === 'late' ? ' alarm' : ''));
+    cap.append(el('span', 'lb', label), el('span', 'ct', String(items.length)));
+    col.appendChild(cap);
+    const stack = el('div', 'stack');
+    items.forEach(t => {
+      const tile = el('div', 'tile');
+      const head = el('div', 'head');
+      const box = el('button', 'box', '✓');
+      box.setAttribute('aria-label', 'Отметить сделанным');
+      box.onclick = () => act('/api/task/' + t.id, 'PATCH', { done:true });
+      const body = el('div'); body.style.minWidth = '0';
+      body.appendChild(el('div', 'tt', t.task));
+      if(t.who) body.appendChild(el('div', 'tw', t.who));
+      head.append(box, body);
+      const foot = el('div', 'tf');
+      foot.append(el('span', null, t.due ? fmt(t.due) : '—'), el('span', 'dn', dueNote(daysLeft(t.due), false)));
+      const dot = el('span', 'dot'); dot.style.background = tone(t.by);
+      foot.appendChild(dot);
+      tile.append(head, foot);
+      stack.appendChild(tile);
+    });
+    if(!items.length) stack.appendChild(el('div', 'nofiles', 'пусто'));
+    col.appendChild(stack);
+    host.appendChild(col);
+  });
+}
+
+function renderSum(){
+  const up = [];
+  S.objects.forEach(o => o.tasks.forEach(t => {
+    if(t.done || !t.due) return;
+    const d = daysLeft(t.due);
+    if(d <= 14) up.push({ t, o, d });
+  }));
+  up.sort((a, b) => a.d - b.d);
+  const host = $('#upcoming'); host.innerHTML = '';
+  if(!up.length){ host.appendChild(el('div', 'empty', 'На две недели вперёд сроков нет.')); }
+  up.forEach(({ t, o, d }) => {
+    const row = el('div', 'urow');
+    row.appendChild(el('div', 'chip' + (d < 0 ? ' late' : ''), fmt(t.due)));
+    const mid = el('div'); mid.style.minWidth = '0';
+    mid.append(el('div', 'tt', t.task), el('div', 'tw', o.name));
+    row.appendChild(mid);
+    row.appendChild(el('div', 'uwho', t.who || 'не назначен'));
+    const dn = el('div', 'udn', dueNote(d, false));
+    dn.style.textAlign = 'right'; dn.style.fontSize = '12.5px'; dn.style.color = 'var(--n700)';
+    row.appendChild(dn);
+    host.appendChild(row);
+  });
+
+  const os = $('#objsum'); os.innerHTML = '';
+  S.objects.forEach(o => {
+    const st = stats(o);
+    const b = el('button', 'objsum');
+    const r1 = el('div', 'row1'); r1.style.display = 'flex'; r1.style.alignItems = 'baseline'; r1.style.gap = '10px';
+    r1.append(el('span', 'nm', o.name), el('span', 'ct', st.pct + '%'));
+    const track = el('div', 'track'); const fill = el('div', 'fill'); fill.style.width = st.pct + '%'; track.appendChild(fill);
+    b.append(r1, track, el('div', 'sub', 'в работе ' + st.open + ' · просрочено ' + st.late + ' · без срока ' + st.noDue));
+    b.onclick = () => { S.activeId = o.id; screen = 'object'; render(); };
+    os.appendChild(b);
+  });
+}
+
 function renderHist(){
-  const box = $('#hist-list');
-  box.innerHTML = '';
+  const box = $('#hist-list'); box.innerHTML = '';
   if(!S.log.length){
-    const e = document.createElement('div');
-    e.className = 'empty'; e.innerHTML = '<b>Пока пусто</b>';
-    e.append('Здесь появится, кто что менял.');
+    const e = el('div', 'empty'); e.append(el('b', null, 'Пока пусто'), 'Здесь появится, кто что менял.');
     box.appendChild(e); return;
   }
   S.log.forEach(l => {
     const u = userOf(l.by);
-    const row = document.createElement('div'); row.className = 'entry';
-    const d = document.createElement('div');
-    const time = document.createElement('time');
+    const row = el('div', 'entry');
     const dt = new Date(l.at);
-    time.textContent = String(dt.getDate()).padStart(2,'0') + '.' + String(dt.getMonth()+1).padStart(2,'0') + ' ' +
-                       String(dt.getHours()).padStart(2,'0') + ':' + String(dt.getMinutes()).padStart(2,'0');
-    const p = document.createElement('p');
-    const b = document.createElement('b'); b.textContent = (u ? u.name : 'кто-то') + ' ';
+    const time = el('time', null, String(dt.getDate()).padStart(2,'0') + '.' + String(dt.getMonth()+1).padStart(2,'0') + ' ' +
+      String(dt.getHours()).padStart(2,'0') + ':' + String(dt.getMinutes()).padStart(2,'0'));
+    const p = el('p');
+    const b = el('b', null, (u ? u.name : 'кто-то') + ' '); b.style.fontWeight = '700';
     p.append(b, l.text);
-    d.append(time, p);
-    row.append(ava(u), d);
+    row.append(ava(u, 24), time, p);
     box.appendChild(row);
   });
 }
@@ -597,7 +748,7 @@ $('#close-hist').onclick = () => histOpen(false);
 $('#veil').onclick = () => histOpen(false);
 document.addEventListener('keydown', e => { if(e.key === 'Escape') histOpen(false); });
 
-/* ---------- действия ---------- */
+/* ─── действия ─── */
 $('#add').onclick = () => {
   const title = $('#f-task').value.trim();
   if(!title){ $('#f-task').focus(); return; }
@@ -606,19 +757,26 @@ $('#add').onclick = () => {
   $('#f-task').focus();
   act('/api/task', 'POST', payload, 'Задача добавлена');
 };
-['f-task','f-who','f-due'].forEach(id =>
-  $('#' + id).addEventListener('keydown', e => { if(e.key === 'Enter') $('#add').click(); }));
+['f-task','f-who','f-due'].forEach(id => $('#' + id).addEventListener('keydown', e => { if(e.key === 'Enter') $('#add').click(); }));
 
 document.querySelectorAll('.filters .btn[data-f]').forEach(b => b.onclick = () => {
   filter = b.dataset.f;
   document.querySelectorAll('.filters .btn[data-f]').forEach(x => x.classList.toggle('on', x === b));
   render();
 });
-$('#sort').onclick = () => { byDue = !byDue; $('#sort').classList.toggle('on', byDue); render(); };
-
+document.querySelectorAll('.views .btn[data-v]').forEach(b => b.onclick = () => {
+  view = b.dataset.v;
+  document.querySelectorAll('.views .btn[data-v]').forEach(x => x.classList.toggle('on', x === b));
+  render();
+});
+$('#open-sum').onclick = () => { screen = screen === 'sum' ? 'object' : 'sum'; render(); };
+$('#add-obj').onclick = () => {
+  const name = prompt('Название объекта');
+  if(name && name.trim()) act('/api/object', 'POST', { name:name.trim() }, 'Объект добавлен');
+};
 $('#drop-obj').onclick = () => {
   const o = cur();
-  if(S.objects.length < 2){ toast('Последний объект удалить нельзя', true); return; }
+  if(S.objects.length < 2){ toast('Последний объект удалить нельзя'); return; }
   if(confirm('Удалить объект «' + o.name + '» вместе со всеми задачами?'))
     act('/api/object/' + o.id, 'DELETE', null, 'Объект удалён');
 };
@@ -629,17 +787,17 @@ $('#backup').onclick = () => {
   a.click(); URL.revokeObjectURL(a.href);
 };
 
-/* ---------- запуск и обновление ---------- */
+/* ─── запуск ─── */
 async function boot(){
   const saved = S && S.activeId;
   S = await api('/api/state');
-  S.activeId = saved || localStorage.getItem('tab') || S.objects[0].id;
+  S.activeId = saved || localStorage.getItem('tab') || (S.objects[0] || {}).id;
   render();
 }
 setInterval(async () => {
   if(!S || $('#gate').classList.contains('on')) return;
-  const el = document.activeElement;
-  if(el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return;
+  const a = document.activeElement;
+  if(a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA')) return;
   try{
     const fresh = await api('/api/state');
     if(fresh.rev !== S.rev){
