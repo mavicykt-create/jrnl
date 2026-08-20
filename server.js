@@ -7,7 +7,9 @@ const path = require('path');
 const crypto = require('crypto');
 
 const PORT = Number(process.env.PORT || process.env.CONTAINER_PORT || 80);
-const PUBLIC_DIR = path.join(__dirname, 'public');
+const PUBLIC_DIR = fs.existsSync(path.join(__dirname, 'public', 'index.html'))
+  ? path.join(__dirname, 'public')
+  : __dirname;
 const PASSWORD = process.env.APP_PASSWORD || '677007';
 const DAY = 86400000;
 
