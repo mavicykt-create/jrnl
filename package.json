@@ -1,0 +1,11 @@
+{
+  "name": "zhurnal-rabot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Журнал работ по объектам: задачи, сроки, файлы, история изменений",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": { "node": ">=18" }
+}

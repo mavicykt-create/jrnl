@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#191C1A">
+<title>Журнал работ</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23191C1A'/><path d='M5 17l6 6 15-15' stroke='%23F0C220' stroke-width='4.5' fill='none'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#E4E4DE; --panel:#FBFBF8; --ink:#161917; --muted:#6F746D; --hair:#D6D6CD;
+  --char:#191C1A; --signal:#F0C220; --alarm:#B23A26; --ok:#3C7A52;
+  --disp:Oswald,Impact,sans-serif;
+  --body:"IBM Plex Sans",-apple-system,Segoe UI,Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
+button,input,textarea{font-family:inherit}
+::selection{background:var(--signal);color:var(--char)}
+
+/* ---------------- ВХОД ---------------- */
+#gate{position:fixed;inset:0;background:var(--char);color:#F2F2EE;display:none;place-items:center;padding:24px;z-index:50;overflow:auto}
+#gate.on{display:grid}
+.gate-card{width:100%;max-width:400px}
+.gate-tape{height:12px;background:repeating-linear-gradient(-45deg,var(--signal) 0 10px,var(--char) 10px 20px);border:1px solid var(--signal);margin-bottom:26px}
+.gate-card h1{font-family:var(--disp);font-weight:600;font-size:34px;letter-spacing:.07em;text-transform:uppercase;margin:0 0 6px;line-height:1}
+.gate-card p{color:#93968F;font-size:13px;margin:0 0 26px;letter-spacing:.02em}
+.gate-label{font-family:var(--disp);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#93968F;margin-bottom:9px}
+.people{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:22px}
+.person{background:transparent;border:1px solid #3A3E3B;color:#CFD1CC;padding:14px 6px 12px;cursor:pointer;display:grid;justify-items:center;gap:8px;transition:border-color .15s,background .15s}
+.person:hover{border-color:#6C716B}
+.person .ava{width:34px;height:34px;display:grid;place-items:center;font-family:var(--disp);font-size:17px;color:#fff;border-radius:50%}
+.person span{font-size:13px;letter-spacing:.03em}
+.person.on{border-color:var(--signal);background:#22261F;color:#fff}
+.pin{display:flex;gap:8px}
+.pin input{flex:1;background:#101211;border:1px solid #3A3E3B;color:#fff;padding:13px;font-family:var(--mono);font-size:18px;letter-spacing:.4em}
+.pin input:focus-visible{outline:2px solid var(--signal);outline-offset:-2px}
+.pin button{background:var(--signal);border:1px solid var(--signal);color:var(--char);font-family:var(--disp);font-size:15px;letter-spacing:.08em;text-transform:uppercase;padding:0 22px;cursor:pointer}
+.pin button:hover{background:#fff;border-color:#fff}
+.gate-err{color:#F0928A;font-size:13px;min-height:20px;margin-top:12px}
+
+/* ---------------- ШАПКА ---------------- */
+.top{position:sticky;top:0;z-index:20;background:var(--char);color:#F2F2EE;padding:11px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{font-family:var(--disp);font-weight:600;font-size:19px;letter-spacing:.11em;text-transform:uppercase;line-height:1}
+.logo i{color:var(--signal);font-style:normal}
+.top .spacer{flex:1}
+.me{display:flex;align-items:center;gap:8px;font-size:13px;color:#CFD1CC}
+.ava{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-family:var(--disp);font-size:13px;color:#fff;flex:none}
+.tbtn{background:transparent;border:1px solid #3A3E3B;color:#CFD1CC;font-family:var(--disp);font-size:12px;letter-spacing:.09em;text-transform:uppercase;padding:7px 12px;cursor:pointer}
+.tbtn:hover{border-color:var(--signal);color:var(--signal)}
+.tbtn:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+
+.wrap{max-width:1060px;margin:0 auto;padding:20px 16px 70px}
+
+.tape{height:14px;background:var(--char);border:1px solid var(--char);overflow:hidden}
+.tape i{display:block;height:100%;width:0;transition:width .4s ease;background:repeating-linear-gradient(-45deg,var(--signal) 0 9px,var(--char) 9px 18px)}
+.legend{display:flex;justify-content:space-between;gap:12px;align-items:baseline;font-size:12.5px;color:var(--muted);margin:7px 0 20px}
+.legend b{font-family:var(--disp);font-weight:500;font-size:14px;color:var(--ink);letter-spacing:.06em;white-space:nowrap}
+.late-flag{color:var(--alarm);font-weight:600}
+
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:-1px}
+.tab{font-family:var(--disp);font-size:14px;letter-spacing:.07em;text-transform:uppercase;background:transparent;border:1px solid var(--hair);border-bottom-color:transparent;padding:9px 14px;cursor:pointer;color:var(--muted);display:flex;align-items:center;gap:8px}
+.tab b{font-family:var(--body);font-size:11px;font-weight:600;letter-spacing:0;background:var(--hair);color:#4A4E4B;padding:1px 7px;border-radius:9px}
+.tab:hover{color:var(--ink)}
+.tab.on{background:var(--panel);color:var(--ink);border-color:var(--char);border-bottom-color:var(--panel)}
+.tab.on b{background:var(--signal);color:var(--char)}
+.tab-add{border-style:dashed}
+.tab:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+
+.sheet{background:var(--panel);border:1px solid var(--char);padding:16px 14px 10px}
+.new{display:grid;grid-template-columns:1fr 160px 152px auto;gap:8px;padding-bottom:15px;border-bottom:2px solid var(--char)}
+input[type=text],input[type=date],textarea{color:var(--ink);background:#fff;border:1px solid var(--hair);padding:9px;width:100%;min-width:0;font-size:15px}
+textarea{resize:vertical;line-height:1.4}
+input::placeholder,textarea::placeholder{color:#A9ADA6}
+input:focus-visible,textarea:focus-visible{outline:2px solid var(--signal);outline-offset:-2px;border-color:var(--char)}
+.btn{font-family:var(--disp);font-size:14px;letter-spacing:.07em;text-transform:uppercase;background:var(--char);color:#fff;border:1px solid var(--char);padding:9px 18px;cursor:pointer}
+.btn:hover{background:var(--signal);color:var(--char)}
+.btn.ghost{background:transparent;color:var(--muted);border-color:var(--hair)}
+.btn.ghost:hover{background:transparent;color:var(--ink);border-color:var(--char)}
+.btn.ghost.on{color:var(--char);border-color:var(--char);background:var(--signal)}
+.btn:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.filters{display:flex;gap:6px;padding:13px 0;flex-wrap:wrap;align-items:center}
+.filters .btn{padding:5px 11px;font-size:12px}
+.filters .sep{flex:1}
+
+ul{list-style:none;margin:0;padding:0}
+li.item{border-bottom:1px solid var(--hair)}
+li.item:last-child{border-bottom:0}
+li.item:hover{background:#F5F5F1}
+li.item.open{background:#F5F5F1}
+.row{display:grid;grid-template-columns:26px 22px 1fr 150px 140px 38px 26px;gap:6px;align-items:center;padding:7px 0}
+.num{font-family:var(--disp);font-size:13px;color:#ADB1AA;text-align:right}
+.box{width:20px;height:20px;border:1.5px solid var(--char);background:#fff;cursor:pointer;padding:0;display:grid;place-items:center;font-size:12px;line-height:1;color:transparent}
+.box:hover{border-color:var(--ok)}
+.box:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.item.done .box{background:var(--ok);border-color:var(--ok);color:#fff}
+.stack{min-width:0}
+.cell{color:var(--ink);background:transparent;border:1px solid transparent;padding:5px 7px;width:100%;min-width:0;font-size:15px}
+.cell:hover{border-color:var(--hair);background:#fff}
+.cell:focus-visible{outline:2px solid var(--signal);outline-offset:-2px;background:#fff;border-color:var(--char)}
+.cell.who{color:var(--muted);font-size:13.5px}
+.peek{font-size:12px;color:var(--muted);padding:0 8px 3px;display:flex;gap:9px;align-items:center;flex-wrap:nowrap;overflow:hidden}
+.peek .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.peek .sig{font-family:var(--mono);font-size:11px;white-space:nowrap;display:flex;align-items:center;gap:5px;color:#8A8E87;flex:none}
+.peek .dot{width:7px;height:7px;border-radius:50%;flex:none}
+.item.done .cell.task{text-decoration:line-through;color:#A9ADA6}
+.item.done .cell.who,.item.done .peek{color:#B5B9B1}
+
+.due{font-family:var(--mono);font-size:12.5px;color:var(--muted);background:#fff;border:1px solid var(--hair);padding:7px}
+.due.soon{border-color:#C9A310;background:#FFF9E2;color:#6B5405}
+.due.late{border-color:var(--alarm);background:#FAEAE6;color:var(--alarm);font-weight:500}
+.item.done .due{opacity:.4;border-color:var(--hair);background:#fff;color:var(--muted);font-weight:400}
+
+.clip{background:transparent;border:1px solid transparent;color:var(--muted);cursor:pointer;font-size:13px;padding:5px;display:flex;align-items:center;gap:3px;justify-content:center}
+.clip:hover{border-color:var(--hair);background:#fff;color:var(--ink)}
+.clip.has{color:var(--char);font-weight:600}
+.clip small{font-family:var(--mono);font-size:11px}
+.kill{background:transparent;border:0;color:#C8CAC3;cursor:pointer;font-size:16px;line-height:1;padding:4px}
+.kill:hover{color:var(--alarm)}
+.kill:focus-visible{outline:2px solid var(--alarm);outline-offset:1px}
+
+.drawer{display:none;padding:4px 0 18px 54px}
+li.item.open .drawer{display:block}
+.drawer h4{font-family:var(--disp);font-weight:500;font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin:0 0 7px}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.files{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 9px}
+.file{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--hair);background:#fff;padding:6px 10px;font-size:13px;max-width:100%}
+.file a{color:var(--ink);text-decoration:none;border-bottom:1.5px solid var(--signal);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file a:hover{border-bottom-color:var(--char)}
+.file em{font-family:var(--mono);font-style:normal;color:#A9ADA6;font-size:11px;white-space:nowrap}
+.file button{background:none;border:0;color:#C8CAC3;cursor:pointer;font-size:14px;padding:0 2px}
+.file button:hover{color:var(--alarm)}
+.nofiles{font-size:13px;color:#A9ADA6}
+.drop{border:1.5px dashed var(--hair);background:#fff;padding:12px;text-align:center;font-size:13px;color:var(--muted);cursor:pointer}
+.drop:hover{border-color:var(--char);color:var(--ink)}
+.drop.hot{border-color:var(--signal);background:#FFFBEA;color:var(--ink)}
+
+.empty{padding:28px 4px 32px;color:var(--muted);font-size:14px}
+.empty b{display:block;font-family:var(--disp);font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);margin-bottom:5px}
+.foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:16px;padding-top:12px;border-top:1px solid var(--hair);font-size:12px;color:var(--muted)}
+.foot button{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
+.foot button:hover{color:var(--ink)}
+.foot #drop-obj:hover{color:var(--alarm)}
+
+/* ---------------- ИСТОРИЯ ---------------- */
+#hist{position:fixed;top:0;right:0;bottom:0;width:400px;max-width:92vw;background:var(--panel);border-left:1px solid var(--char);transform:translateX(102%);transition:transform .22s ease;z-index:40;display:flex;flex-direction:column;box-shadow:-14px 0 34px rgba(0,0,0,.12)}
+#hist.on{transform:none}
+.hist-top{background:var(--char);color:#F2F2EE;padding:13px 16px;display:flex;justify-content:space-between;align-items:center}
+.hist-top h3{font-family:var(--disp);font-weight:500;font-size:15px;letter-spacing:.11em;text-transform:uppercase;margin:0}
+.hist-top button{background:none;border:0;color:#93968F;font-size:20px;cursor:pointer;line-height:1}
+.hist-top button:hover{color:#fff}
+.hist-list{overflow:auto;padding:6px 16px 30px}
+.entry{display:grid;grid-template-columns:22px 1fr;gap:10px;padding:11px 0;border-bottom:1px solid var(--hair)}
+.entry .ava{width:22px;height:22px;font-size:11px}
+.entry time{display:block;font-family:var(--mono);font-size:11px;color:#9CA098;margin-bottom:2px}
+.entry p{margin:0;font-size:13.5px;line-height:1.4}
+.entry b{font-weight:600}
+#veil{position:fixed;inset:0;background:rgba(20,22,20,.32);opacity:0;pointer-events:none;transition:opacity .2s;z-index:35}
+#veil.on{opacity:1;pointer-events:auto}
+
+#toast{position:fixed;left:16px;bottom:16px;background:var(--char);color:#fff;font-size:13px;padding:10px 15px;z-index:60;opacity:0;transform:translateY(8px);transition:opacity .18s,transform .18s;pointer-events:none;max-width:80vw}
+#toast.on{opacity:1;transform:none}
+#toast.bad{background:var(--alarm)}
+
+@media (max-width:860px){
+  .new{grid-template-columns:1fr 1fr}
+  .new .task-in{grid-column:1/3}
+  .new .btn{grid-column:1/3}
+  .row{grid-template-columns:26px 1fr 132px 36px 26px;row-gap:2px}
+  .num{display:none}
+  .stack{grid-column:2/6}
+  .cell.who{grid-column:2/3;padding-top:0}
+  .due{grid-column:3/4}
+  .drawer{padding-left:26px}
+  .dgrid{grid-template-columns:1fr}
+  .logo{font-size:16px}
+  .me span{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<body>
+
+<!-- ВХОД -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-tape"></div>
+    <h1>Журнал работ</h1>
+    <p>Гараж · Объект · Сладкая планета</p>
+    <div class="gate-label">Кто пришёл</div>
+    <div class="people" id="people"></div>
+    <div class="gate-label">Пароль</div>
+    <div class="pin">
+      <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="······">
+      <button id="enter">Войти</button>
+    </div>
+    <div class="gate-err" id="gate-err"></div>
+  </div>
+</div>
+
+<!-- ПРИЛОЖЕНИЕ -->
+<div class="top">
+  <div class="logo">Журнал <i>работ</i></div>
+  <div class="spacer"></div>
+  <div class="me" id="me"></div>
+  <button class="tbtn" id="open-hist">История</button>
+  <button class="tbtn" id="exit">Выйти</button>
+</div>
+
+<div class="wrap">
+  <div class="tape"><i id="bar"></i></div>
+  <div class="legend"><span id="legend">Загружаю…</span><b id="pct"></b></div>
+
+  <div class="tabs" id="tabs"></div>
+  <div class="sheet">
+    <div class="new">
+      <input type="text" class="task-in" id="f-task" placeholder="Что сделать">
+      <input type="text" id="f-who" placeholder="Кто делает">
+      <input type="date" id="f-due" title="Срок">
+      <button class="btn" id="add">Добавить</button>
+    </div>
+    <div class="filters">
+      <button class="btn ghost on" data-f="all">Все</button>
+      <button class="btn ghost" data-f="open">В работе</button>
+      <button class="btn ghost" data-f="done">Сделано</button>
+      <span class="sep"></span>
+      <button class="btn ghost" id="sort">Сначала срочные</button>
+    </div>
+    <ul id="list"></ul>
+    <div class="foot">
+      <span id="status">Правки видят все, кто вошёл</span>
+      <span>
+        <button id="backup">Скачать копию</button> ·
+        <button id="drop-obj">Удалить этот объект</button>
+      </span>
+    </div>
+  </div>
+</div>
+
+<div id="veil"></div>
+<aside id="hist">
+  <div class="hist-top"><h3>История</h3><button id="close-hist" aria-label="Закрыть">✕</button></div>
+  <div class="hist-list" id="hist-list"></div>
+</aside>
+<div id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+let S = null, filter = 'all', byDue = false, pickedUser = null;
+const open = new Set();
+
+/* ---------- сеть ---------- */
+async function api(path, method, payload){
+  const r = await fetch(path, {
+    method: method || 'GET',
+    headers: payload ? { 'Content-Type':'application/json' } : undefined,
+    body: payload ? JSON.stringify(payload) : undefined
+  });
+  if(r.status === 401){ showGate(); throw new Error('Нужно войти'); }
+  const data = await r.json().catch(() => ({}));
+  if(!r.ok) throw new Error(data.error || ('Ошибка ' + r.status));
+  return data;
+}
+async function act(path, method, payload, okMsg){
+  try{
+    S = await api(path, method, payload);
+    render();
+    if(okMsg) toast(okMsg);
+  }catch(e){ toast(e.message, true); }
+}
+
+let toastTimer;
+function toast(msg, bad){
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.toggle('bad', !!bad);
+  el.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('on'), 2600);
+}
+
+/* ---------- вход ---------- */
+const PEOPLE = [
+  { id:'katya',  name:'Катя',  color:'#A8385F' },
+  { id:'zhenya', name:'Женя',  color:'#2E5EAA' },
+  { id:'arian',  name:'Ариан', color:'#3C7A52' }
+];
+function showGate(){
+  $('#gate').classList.add('on');
+  $('#gate-err').textContent = '';
+  $('#pin').value = '';
+}
+function buildGate(){
+  const box = $('#people');
+  box.innerHTML = '';
+  PEOPLE.forEach(u => {
+    const b = document.createElement('button');
+    b.className = 'person';
+    const a = document.createElement('div');
+    a.className = 'ava'; a.style.background = u.color; a.textContent = u.name[0];
+    const s = document.createElement('span'); s.textContent = u.name;
+    b.append(a, s);
+    b.onclick = () => {
+      pickedUser = u.id;
+      [...box.children].forEach(c => c.classList.toggle('on', c === b));
+      $('#pin').focus();
+    };
+    box.appendChild(b);
+  });
+}
+async function login(){
+  if(!pickedUser){ $('#gate-err').textContent = 'Сначала выберите, кто вы'; return; }
+  const pass = $('#pin').value;
+  if(!pass){ $('#gate-err').textContent = 'Введите пароль'; return; }
+  try{
+    await api('/api/login', 'POST', { user:pickedUser, password:pass });
+    $('#gate').classList.remove('on');
+    await boot();
+    toast('С возвращением');
+  }catch(e){
+    $('#gate-err').textContent = e.message;
+    $('#pin').value = ''; $('#pin').focus();
+  }
+}
+$('#enter').onclick = login;
+$('#pin').addEventListener('keydown', e => { if(e.key === 'Enter') login(); });
+$('#exit').onclick = async () => { await fetch('/api/logout', { method:'POST' }); pickedUser = null; buildGate(); showGate(); };
+
+/* ---------- помощники ---------- */
+const userOf = id => (S && S.users.find(u => u.id === id)) || PEOPLE.find(u => u.id === id) || null;
+const today = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+function daysLeft(due){ if(!due) return null; return Math.round((new Date(due + 'T00:00:00') - today()) / 86400000); }
+function dueLabel(n){
+  if(n === null) return '';
+  if(n < 0) return 'просрочено на ' + (-n) + ' дн.';
+  if(n === 0) return 'срок сегодня';
+  if(n === 1) return 'остался 1 день';
+  if(n < 5) return 'осталось ' + n + ' дн.';
+  return '';
+}
+const kb = n => n > 1048576 ? (n / 1048576).toFixed(1) + ' МБ' : Math.max(1, Math.round(n / 1024)) + ' КБ';
+function when(iso){
+  if(!iso) return '';
+  const d = new Date(iso), n = new Date();
+  const sameDay = d.toDateString() === n.toDateString();
+  const time = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  return sameDay ? time : String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth() + 1).padStart(2,'0') + ' ' + time;
+}
+function ava(u, cls){
+  const d = document.createElement('div');
+  d.className = 'ava' + (cls ? ' ' + cls : '');
+  d.style.background = u ? u.color : '#9CA098';
+  d.textContent = u ? u.name[0] : '?';
+  return d;
+}
+const cur = () => S.objects.find(o => o.id === S.activeId) || S.objects[0];
+
+/* ---------- отрисовка ---------- */
+function render(){
+  if(!S) return;
+  if(!S.objects.some(o => o.id === S.activeId)) S.activeId = (S.objects[0] || {}).id;
+
+  const me = $('#me');
+  me.innerHTML = '';
+  me.append(ava(S.me), Object.assign(document.createElement('span'), { textContent:S.me.name }));
+
+  const tabs = $('#tabs');
+  tabs.innerHTML = '';
+  S.objects.forEach(ob => {
+    const b = document.createElement('button');
+    b.className = 'tab' + (ob.id === S.activeId ? ' on' : '');
+    b.title = 'Двойной щелчок — переименовать';
+    const n = document.createElement('span'); n.textContent = ob.name;
+    const c = document.createElement('b'); c.textContent = ob.tasks.filter(t => !t.done).length;
+    b.append(n, c);
+    b.onclick = () => { S.activeId = ob.id; localStorage.setItem('tab', ob.id); render(); };
+    b.ondblclick = () => {
+      const name = prompt('Новое название', ob.name);
+      if(name && name.trim()) act('/api/object/' + ob.id, 'PATCH', { name:name.trim() }, 'Переименовано');
+    };
+    tabs.appendChild(b);
+  });
+  const plus = document.createElement('button');
+  plus.className = 'tab tab-add'; plus.textContent = '+ объект';
+  plus.onclick = () => {
+    const name = prompt('Название объекта');
+    if(name && name.trim()) act('/api/object', 'POST', { name:name.trim() }, 'Объект добавлен');
+  };
+  tabs.appendChild(plus);
+
+  const o = cur();
+  const done = o.tasks.filter(t => t.done).length, all = o.tasks.length;
+  const pct = all ? Math.round(done / all * 100) : 0;
+  const late = o.tasks.filter(t => !t.done && daysLeft(t.due) !== null && daysLeft(t.due) < 0).length;
+  $('#bar').style.width = pct + '%';
+  const lg = $('#legend'); lg.innerHTML = '';
+  lg.append(o.name + ' — сделано ' + done + ' из ' + all);
+  if(late){
+    const s = document.createElement('span');
+    s.className = 'late-flag'; s.textContent = '  ·  просрочено: ' + late;
+    lg.appendChild(s);
+  }
+  $('#pct').textContent = pct + '%';
+
+  const list = $('#list');
+  list.innerHTML = '';
+  let rows = o.tasks.filter(t => filter === 'all' || (filter === 'done') === !!t.done);
+  if(byDue) rows = rows.slice().sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999'));
+  if(!rows.length){
+    const d = document.createElement('div');
+    d.className = 'empty'; d.innerHTML = '<b>Пусто</b>';
+    d.append(filter === 'all' ? 'Впишите первую задачу в строку сверху.'
+           : filter === 'done' ? 'Сделанного пока нет.' : 'Всё закрыто. Хорошая новость.');
+    list.appendChild(d);
+  } else {
+    rows.forEach((t, i) => list.appendChild(item(o, t, i + 1)));
+  }
+  renderHist();
+}
+
+function item(o, t, n){
+  const li = document.createElement('li');
+  li.className = 'item' + (t.done ? ' done' : '') + (open.has(t.id) ? ' open' : '');
+  const row = document.createElement('div'); row.className = 'row';
+
+  const box = document.createElement('button');
+  box.className = 'box'; box.textContent = '✓';
+  box.setAttribute('aria-pressed', String(!!t.done));
+  box.setAttribute('aria-label', t.done ? 'Вернуть в работу' : 'Отметить сделанным');
+  box.onclick = () => act('/api/task/' + t.id, 'PATCH', { done: !t.done });
+
+  const num = document.createElement('div');
+  num.className = 'num'; num.textContent = n;
+
+  const stack = document.createElement('div'); stack.className = 'stack';
+  const task = document.createElement('input');
+  task.type = 'text'; task.className = 'cell task'; task.value = t.task; task.placeholder = 'Что сделать';
+  task.onchange = () => { if(task.value.trim() !== t.task) act('/api/task/' + t.id, 'PATCH', { task:task.value }); };
+  stack.appendChild(task);
+
+  const peek = document.createElement('div'); peek.className = 'peek';
+  const bits = [];
+  if(t.note) bits.push(t.note);
+  const dl = daysLeft(t.due);
+  if(!t.done && dl !== null && dueLabel(dl)) bits.push(dueLabel(dl));
+  if(bits.length){
+    const s = document.createElement('span'); s.className = 'txt'; s.textContent = bits.join('  ·  ');
+    peek.appendChild(s);
+  }
+  if(t.by){
+    const u = userOf(t.by);
+    const sig = document.createElement('span'); sig.className = 'sig';
+    const dot = document.createElement('span'); dot.className = 'dot';
+    dot.style.background = u ? u.color : '#9CA098';
+    sig.append(dot, (u ? u.name : '?') + ', ' + when(t.at));
+    peek.appendChild(sig);
+  }
+  if(peek.children.length) stack.appendChild(peek);
+
+  const who = document.createElement('input');
+  who.type = 'text'; who.className = 'cell who'; who.value = t.who; who.placeholder = 'Кто';
+  who.onchange = () => { if(who.value.trim() !== t.who) act('/api/task/' + t.id, 'PATCH', { who:who.value }); };
+
+  const due = document.createElement('input');
+  due.type = 'date'; due.className = 'due'; due.value = t.due || ''; due.title = 'Срок';
+  if(!t.done && dl !== null){ due.classList.toggle('late', dl < 0); due.classList.toggle('soon', dl >= 0 && dl <= 3); }
+  due.onchange = () => act('/api/task/' + t.id, 'PATCH', { due:due.value });
+
+  const clip = document.createElement('button');
+  clip.className = 'clip' + (t.files.length ? ' has' : '');
+  clip.title = 'Заметка и файлы';
+  clip.append('📎');
+  if(t.files.length){ const s = document.createElement('small'); s.textContent = t.files.length; clip.appendChild(s); }
+  clip.onclick = () => {
+    if(open.has(t.id)) open.delete(t.id); else open.add(t.id);
+    li.classList.toggle('open');
+  };
+
+  const kill = document.createElement('button');
+  kill.className = 'kill'; kill.textContent = '✕';
+  kill.setAttribute('aria-label', 'Удалить задачу');
+  kill.onclick = () => {
+    if(confirm('Удалить «' + (t.task || 'без названия') + '»?')){ open.delete(t.id); act('/api/task/' + t.id, 'DELETE', null, 'Удалено'); }
+  };
+
+  row.append(box, num, stack, who, due, clip, kill);
+  li.append(row, drawer(t));
+  return li;
+}
+
+function drawer(t){
+  const d = document.createElement('div'); d.className = 'drawer';
+  const grid = document.createElement('div'); grid.className = 'dgrid';
+
+  const left = document.createElement('div');
+  const h1 = document.createElement('h4'); h1.textContent = 'Заметка';
+  const ta = document.createElement('textarea');
+  ta.rows = 3; ta.value = t.note || '';
+  ta.placeholder = 'Телефон, счёт, что мешает, о чём договорились';
+  ta.onchange = () => { if(ta.value.trim() !== t.note) act('/api/task/' + t.id, 'PATCH', { note:ta.value }, 'Заметка сохранена'); };
+  left.append(h1, ta);
+
+  const right = document.createElement('div');
+  const h2 = document.createElement('h4'); h2.textContent = 'Файлы';
+  const files = document.createElement('div'); files.className = 'files';
+  if(t.files.length){
+    t.files.forEach(f => {
+      const chip = document.createElement('div'); chip.className = 'file';
+      const a = document.createElement('a');
+      a.href = '/files/' + f.stored; a.target = '_blank'; a.rel = 'noopener'; a.textContent = f.name;
+      const u = userOf(f.by);
+      const em = document.createElement('em');
+      em.textContent = kb(f.size) + (u ? ' · ' + u.name : '');
+      const x = document.createElement('button'); x.textContent = '✕'; x.title = 'Убрать файл';
+      x.onclick = () => { if(confirm('Убрать «' + f.name + '»?')) act('/api/task/' + t.id + '/file/' + f.id, 'DELETE', null, 'Файл убран'); };
+      chip.append(a, em, x); files.appendChild(chip);
+    });
+  } else {
+    const e = document.createElement('span'); e.className = 'nofiles';
+    e.textContent = 'Пока ничего не прикреплено';
+    files.appendChild(e);
+  }
+
+  const drop = document.createElement('div'); drop.className = 'drop';
+  const label = 'Перетащите сюда или нажмите — счета, фото, договоры (до 15 МБ)';
+  drop.textContent = label;
+  const input = document.createElement('input');
+  input.type = 'file'; input.multiple = true; input.style.display = 'none';
+
+  const take = async fileList => {
+    for(const f of fileList){
+      if(f.size > 15 * 1024 * 1024){ toast('«' + f.name + '» больше 15 МБ', true); continue; }
+      drop.textContent = 'Загружаю ' + f.name + '…';
+      try{
+        const b64 = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => res(r.result);
+          r.onerror = () => rej(new Error('Файл не читается'));
+          r.readAsDataURL(f);
+        });
+        open.add(t.id);
+        S = await api('/api/task/' + t.id + '/file', 'POST', { name:f.name, type:f.type, data:b64 });
+        render(); toast('Файл приложен');
+        return;
+      }catch(e){ toast(e.message, true); }
+    }
+    drop.textContent = label;
+    input.value = '';
+  };
+  drop.onclick = () => input.click();
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add('hot'); };
+  drop.ondragleave = () => drop.classList.remove('hot');
+  drop.ondrop = e => { e.preventDefault(); drop.classList.remove('hot'); take(e.dataTransfer.files); };
+  input.onchange = () => take(input.files);
+
+  right.append(h2, files, drop, input);
+  grid.append(left, right);
+  d.appendChild(grid);
+  return d;
+}
+
+/* ---------- история ---------- */
+function renderHist(){
+  const box = $('#hist-list');
+  box.innerHTML = '';
+  if(!S.log.length){
+    const e = document.createElement('div');
+    e.className = 'empty'; e.innerHTML = '<b>Пока пусто</b>';
+    e.append('Здесь появится, кто что менял.');
+    box.appendChild(e); return;
+  }
+  S.log.forEach(l => {
+    const u = userOf(l.by);
+    const row = document.createElement('div'); row.className = 'entry';
+    const d = document.createElement('div');
+    const time = document.createElement('time');
+    const dt = new Date(l.at);
+    time.textContent = String(dt.getDate()).padStart(2,'0') + '.' + String(dt.getMonth()+1).padStart(2,'0') + ' ' +
+                       String(dt.getHours()).padStart(2,'0') + ':' + String(dt.getMinutes()).padStart(2,'0');
+    const p = document.createElement('p');
+    const b = document.createElement('b'); b.textContent = (u ? u.name : 'кто-то') + ' ';
+    p.append(b, l.text);
+    d.append(time, p);
+    row.append(ava(u), d);
+    box.appendChild(row);
+  });
+}
+const histOpen = on => { $('#hist').classList.toggle('on', on); $('#veil').classList.toggle('on', on); };
+$('#open-hist').onclick = () => histOpen(true);
+$('#close-hist').onclick = () => histOpen(false);
+$('#veil').onclick = () => histOpen(false);
+document.addEventListener('keydown', e => { if(e.key === 'Escape') histOpen(false); });
+
+/* ---------- действия ---------- */
+$('#add').onclick = () => {
+  const title = $('#f-task').value.trim();
+  if(!title){ $('#f-task').focus(); return; }
+  const payload = { objectId: cur().id, task:title, who:$('#f-who').value.trim(), due:$('#f-due').value };
+  $('#f-task').value = $('#f-who').value = $('#f-due').value = '';
+  $('#f-task').focus();
+  act('/api/task', 'POST', payload, 'Задача добавлена');
+};
+['f-task','f-who','f-due'].forEach(id =>
+  $('#' + id).addEventListener('keydown', e => { if(e.key === 'Enter') $('#add').click(); }));
+
+document.querySelectorAll('.filters .btn[data-f]').forEach(b => b.onclick = () => {
+  filter = b.dataset.f;
+  document.querySelectorAll('.filters .btn[data-f]').forEach(x => x.classList.toggle('on', x === b));
+  render();
+});
+$('#sort').onclick = () => { byDue = !byDue; $('#sort').classList.toggle('on', byDue); render(); };
+
+$('#drop-obj').onclick = () => {
+  const o = cur();
+  if(S.objects.length < 2){ toast('Последний объект удалить нельзя', true); return; }
+  if(confirm('Удалить объект «' + o.name + '» вместе со всеми задачами?'))
+    act('/api/object/' + o.id, 'DELETE', null, 'Объект удалён');
+};
+$('#backup').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify({ objects:S.objects, log:S.log }, null, 2)], { type:'application/json' }));
+  a.download = 'zhurnal-rabot-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click(); URL.revokeObjectURL(a.href);
+};
+
+/* ---------- запуск и обновление ---------- */
+async function boot(){
+  const saved = S && S.activeId;
+  S = await api('/api/state');
+  S.activeId = saved || localStorage.getItem('tab') || S.objects[0].id;
+  render();
+}
+setInterval(async () => {
+  if(!S || $('#gate').classList.contains('on')) return;
+  const el = document.activeElement;
+  if(el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return;
+  try{
+    const fresh = await api('/api/state');
+    if(fresh.rev !== S.rev){
+      const keep = S.activeId;
+      S = fresh; S.activeId = keep;
+      render(); toast('Обновил — были правки');
+    }
+  }catch(e){}
+}, 15000);
+
+buildGate();
+boot().catch(() => showGate());
+</script>
+</body>
+</html>
